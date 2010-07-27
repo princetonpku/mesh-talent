@@ -28,27 +28,42 @@ public slots:
 	void open_mesh_query() {
         QString fileName = QFileDialog::getOpenFileName(this,
             tr("Open mesh file"),
-            tr(""),
-            tr("OBJ Files (*.obj);;"
-            "OFF Files (*.off);;"
+            tr("../models/"),
+            tr( "OFF Files (*.off);;"
+			"OBJ Files (*.obj);;"
             "STL Files (*.stl);;"
             "All Files (*)"));
         if (!fileName.isEmpty())
             open_mesh_gui(fileName);
 	}
+	void gen_graph_query();
+private:
+	void genGraph();
 protected:
 	virtual void draw_scene(int drawmode);
+	virtual void mousePressEvent(QMouseEvent* _event);
+	virtual void mouseMoveEvent(QMouseEvent* _event);
+	virtual void mouseReleaseEvent(QMouseEvent* _event);
 private:
-	void init_showlist();
+	QPoint pick_press_point_; // for pick mode.
+private:
 	void draw_mesh_wireframe() const;
 	void draw_mesh_solidflat() const;
 	void draw_mesh_solidsmooth() const;
 	void draw_mesh_pointset() const;
+	void draw_graph() const;
+	void drawSelectBox(const OpenMesh::Vec3d& center, double radius);
+	void draw_select_boxes();
+private:
+	void processPick(QMouseEvent* _event);
+	void processHits(GLint hits, GLuint* buffer, bool controled);
 private:
 	InterMesh mesh_;
 	DeformableMesh3d* pdmesh_;
-private:
-	GLuint showlist_start_;
+	DeformationGraph* pdgraph_;
+public:
+	enum { MOUSE_PICK = N_MOUSE_MODES, MOUSE_DEFORM };
+	enum { DRAW_GRAPH = N_DRAW_MODES };
 };
 
 #endif // MESHTALENT_MESHVIEWERWIDGET_H

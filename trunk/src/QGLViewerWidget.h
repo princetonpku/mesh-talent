@@ -35,6 +35,12 @@ public:
 	// draw modes.
 	enum { WIRE_FRAME=0, SOLID_FLAT, SOLID_SMOOTH, POINT_SET, N_DRAW_MODES };
 	void setDrawMode(int dm) { draw_mode_ = dm; updateGL(); }
+	int draw_mode() const { return draw_mode_; }
+public:
+	// mouse modes.
+	enum { MOUSE_ROTATE=0, MOUSE_TRANSLATE, MOUSE_SCALE, N_MOUSE_MODES };
+	void setMouseMode(int mm) { mouse_mode_ = mm; }
+	int mouse_mode() const { return mouse_mode_; }
 protected:
 	// draw the scene: will be called by the painGL() method.
 	virtual void draw_scene(int drawmode);
@@ -65,6 +71,7 @@ private:
 	void rotate(const OpenMesh::Vec3d& _axis, float _angle);
 private:
 	int draw_mode_;
+	int mouse_mode_;
 	OpenMesh::Vec3d  center_;
 	float            radius_;
 	GLdouble projection_matrix_[16];

@@ -4,7 +4,6 @@
 
 #include <GL/glut.h>
 
-//#include <qnamespace.h>
 #include <qapplication.h>
 #include <QMouseEvent>
 
@@ -39,6 +38,7 @@ void QGLViewerWidget::init(void)
 	setFocusPolicy(Qt::StrongFocus);
 	//setAcceptDrops( true );  
 	//setCursor(PointingHandCursor);
+
 	// draw mode
 	draw_mode_ = 0;
 }
@@ -146,23 +146,22 @@ void QGLViewerWidget::draw_scene(int drawmode)
 	}
 }
 
-void QGLViewerWidget::mousePressEvent( QMouseEvent* _event )
+void QGLViewerWidget::mousePressEvent(QMouseEvent* _event)
 {
+	assert(mouse_mode_ < N_MOUSE_MODES);
 	last_point_ok_ = map_to_sphere( last_point_2D_=_event->pos(),
 				    last_point_3D_ );
 }
 
-void QGLViewerWidget::mouseMoveEvent( QMouseEvent* _event )
+void QGLViewerWidget::mouseMoveEvent(QMouseEvent* _event)
 {  
+	//assert(mouse_mode_ < N_MOUSE_MODES);
+
 	QPoint newPoint2D = _event->pos(); 
   
-	// Left button: rotate around center_
-	// Middle button: translate object
-	// Left & middle button: zoom in/out
-
 	float  value_y;
 	Vec3d  newPoint3D;
-	bool   newPoint_hitSphere = map_to_sphere( newPoint2D, newPoint3D );
+	bool   newPoint_hitSphere = map_to_sphere(newPoint2D, newPoint3D);
 	
 	float dx = newPoint2D.x() - last_point_2D_.x();
 	float dy = newPoint2D.y() - last_point_2D_.y();
@@ -173,37 +172,10 @@ void QGLViewerWidget::mouseMoveEvent( QMouseEvent* _event )
 	// enable GL context
 	makeCurrent();
   
-	// move in z direction
-	if ( (_event->buttons() == (LeftButton+MidButton)) ||
-		(_event->buttons() == LeftButton && _event->modifiers() == ControlModifier)) {
-		value_y = radius_ * dy * 3.0 / h; // why use this formula?
-		translate(Vec3d(0.0, 0.0, value_y));
-	}
-	// move in x,y direction
-	else if ( (_event->buttons() == MidButton) ||
-			(_event->buttons() == LeftButton && _event->modifiers() == AltModifier) ) {
-		float z = - (modelview_matrix_[ 2]*center_[0] + 
-				modelview_matrix_[ 6]*center_[1] + 
-				modelview_matrix_[10]*center_[2] + 
-				modelview_matrix_[14]) /
-					(modelview_matrix_[ 3]*center_[0] + 
-					 modelview_matrix_[ 7]*center_[1] + 
-					 modelview_matrix_[11]*center_[2] + 
-					 modelview_matrix_[15]);
-
-		float aspect     = w / h;
-		float near_plane = 0.01 * radius_;
-		float top        = tan(fovy()/2.0f*M_PI/180.0f) * near_plane;
-		float right      = aspect*top;
-
-		translate(Vec3d( 2.0*dx/w*right/near_plane*z, 
-					-2.0*dy/h*top/near_plane*z, 
-					0.0f));
-	}
-	// rotate
-	else if (_event->buttons() == LeftButton) {
-		if (last_point_ok_) {
-			if ( (newPoint_hitSphere = map_to_sphere(newPoint2D, newPoint3D)) ) {
+	if (last_point_ok_) {
+		switch (mouse_mode_) {
+		case MOUSE_ROTATE:
+			if (newPoint_hitSphere) {
 				Vec3d axis = last_point_3D_ % newPoint3D;
 				if (axis.sqrnorm() < 1e-7) {
 					axis = Vec3d(1,0,0);
@@ -219,9 +191,36 @@ void QGLViewerWidget::mouseMoveEvent( QMouseEvent* _event )
 				float  angle =  phi * 180.0 / M_PI;
 				rotate( axis, angle );
 			}
-		}
-	}
+			break;
+		case MOUSE_TRANSLATE:
+			{
+			float z = - (modelview_matrix_[ 2]*center_[0] + 
+					modelview_matrix_[ 6]*center_[1] + 
+					modelview_matrix_[10]*center_[2] + 
+					modelview_matrix_[14]) /
+						(modelview_matrix_[ 3]*center_[0] + 
+						 modelview_matrix_[ 7]*center_[1] + 
+						 modelview_matrix_[11]*center_[2] + 
+						 modelview_matrix_[15]);
 
+			float aspect     = w / h;
+			float near_plane = 0.01 * radius_;
+			float top        = tan(fovy()/2.0f*M_PI/180.0f) * near_plane;
+			float right      = aspect*top;
+
+			translate(Vec3d( 2.0*dx/w*right/near_plane*z, 
+						-2.0*dy/h*top/near_plane*z, 
+						0.0f));
+			}
+			break;
+		case MOUSE_SCALE:
+			value_y = radius_ * dy * 3.0 / h; // why use this formula?
+			translate(Vec3d(0.0, 0.0, value_y));
+			break;
+		default:
+			break;
+		}
+	} // end of if
 
 	// remember this point
 	last_point_2D_ = newPoint2D;
@@ -234,6 +233,7 @@ void QGLViewerWidget::mouseMoveEvent( QMouseEvent* _event )
 
 void QGLViewerWidget::mouseReleaseEvent(QMouseEvent* /* _event */ )
 {  
+	//assert(mouse_mode_ < N_MOUSE_MODES);
 	last_point_ok_ = false;
 }
 

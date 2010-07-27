@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	MainWindow mainWin;
 	mainWin.resize(640, 480);
-	mainWin.show();
+	mainWin.showMaximized();
 
 	return app.exec();
 }

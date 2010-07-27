@@ -14,8 +14,8 @@ namespace meshtalent {
 template <typename FUN>
 void DeformableMesh3d::specifyposArr(FUN fun)
 {
-	std::vector<InterMesh::VertexHandle>& svIDs = pMesh->property(selectedVertices);
-	sort(svIDs.begin(), svIDs.end());
+	std::set<InterMesh::VertexHandle>& svIDs = pMesh->property(selectedVertices);
+	//sort(svIDs.begin(), svIDs.end());
 
 #ifndef NDEBUG
 	// assert handleIDs is sorted.
@@ -30,8 +30,7 @@ void DeformableMesh3d::specifyposArr(FUN fun)
 	for (int i = 0; i < handleIDsize; ++i) {
 		InterMesh::Point& p = pMesh->point(handleIDs[i]); // get one handle.
 		P3d pnow(p[0], p[1], p[2]);
-		bool b = binary_search(svIDs.begin(), svIDs.end(), handleIDs[i]); // we can also use sequential search to speed up.
-		if (b) { // this handle should move
+		if (svIDs.find(handleIDs[i]) != svIDs.end()) {
 			pnow = fun(pnow);
 		}
 		specifiedposArr.push_back(pnow);
@@ -225,7 +224,7 @@ void DeformableMesh3d::InitDatas(DeformationGraph* _pGraph)
 void DeformableMesh3d::gethandles()
 {
 	handleIDs.clear();
-	std::vector<InterMesh::VertexHandle>& svIDs = pMesh->property(selectedVertices);
+	std::set<InterMesh::VertexHandle>& svIDs = pMesh->property(selectedVertices);
 	copy(svIDs.begin(), svIDs.end(), back_inserter(handleIDs));
 	sort(handleIDs.begin(), handleIDs.end());
 }
