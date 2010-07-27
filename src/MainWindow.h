@@ -4,7 +4,7 @@
 #include <QMainWindow>
 
 class QAction;
-class QGLViewerWidget;
+class MeshViewerWidget;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -23,19 +23,38 @@ private slots:
 	void solidFlatShow();
 	void solidSmoothShow();
 	void pointSetShow();
+	void graphShow();
+	void viewAll();
+
+	void mouseRotate();
+	void mouseScale();
+	void mouseTranslate();
+	void mousePick();
+	void mouseDeform();
 private:
 	// File Actions.
 	QAction* openAction;
 	QAction* saveAction;
 	QAction* saveAsAction;
 	QAction* exitAction;
+
 	// Edit Actions.
+	QAction* genGraphAction;
 
 	// View Actions.
 	QAction* wireFrameAction;
 	QAction* solidFlatAction;
 	QAction* solidSmoothAction;
 	QAction* pointSetAction;
+	QAction* showGraphAction;
+	QAction* viewAllAction;
+
+	// Mouse Actions.
+	QAction* mouseRotateAction;
+	QAction* mouseTranslateAction;
+	QAction* mouseScaleAction;
+	QAction* mousePickAction;
+	QAction* mouseDeformAction;
 
 	// Help Actions.
 
@@ -47,8 +66,11 @@ private:
 	// ToolBars.
 	QToolBar* fileToolBar;
 	QToolBar* viewToolBar;
+	QToolBar* mouseToolBar;
+private:
+	void setAllMouseActionchecked(bool b);
 
 private:
-	QGLViewerWidget* viewer;
+	MeshViewerWidget* viewer;
 };
 #endif // MESHTALENT_MAINWINDOW_H

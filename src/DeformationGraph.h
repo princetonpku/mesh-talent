@@ -58,7 +58,7 @@ private:
 	void GenerateRandomNodes();
 	void GenerateEdges();
 	void GenerateDensePointSet(std::list<P3d>& pointcoll, double delta);// sample points on the surface.
-private:
+public:
 	struct GraphNode {
 		GraphNode(const P3d& _g, int _index) : g(_g), index(_index) {}
 		P3d g; // the space coordinate of this graph node.
@@ -67,14 +67,17 @@ private:
 		int index; // the index in "edges".
 		std::vector<int> vertices; // the coll of vertex whose deformation is correspond to this node.
 	};
+	typedef std::pair<GraphNode, std::vector<int> > Link; // node and adjacent edges
 private:
 	DeformableMesh3d& dmesh;
 	const int nodenum; // the num of nodes of this graph
 	const int relatenum; // the num of related nodes of each mesh vertex
 	const int samplescale;
 	const double deletearearate;
-	typedef std::pair<GraphNode, std::vector<int> > Link; // node and adjacent edges
 	std::vector<Link> edges;
+public:
+	std::vector<Link>& getEdges() { return edges; }
+	const std::vector<Link>& getEdges() const { return edges; }
 private:
 	const double wrot;
 	const double wreg;

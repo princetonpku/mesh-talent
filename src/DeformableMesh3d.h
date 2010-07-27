@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <utility>
+#include <set>
 // ---------------------OpenMesh
 #include <OpenMesh/Core/Geometry/VectorT.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
@@ -141,13 +142,14 @@ private:
 	std::vector<InterMesh::VertexHandle> handleIDs;
 	/* specifiedposArr's every element is correspond to the vertex with a index in handleIDs. */
 	std::vector<P3d> specifiedposArr;
-public:
+private:
 	// Every Vertex which is selected, its handle will be stored in selectedVertices.
-	OpenMesh::MPropHandleT<std::vector<InterMesh::VertexHandle> > selectedVertices;
-	std::vector<InterMesh::VertexHandle>& getSVArr() {
+	OpenMesh::MPropHandleT<std::set<InterMesh::VertexHandle> > selectedVertices;
+public:
+	std::set<InterMesh::VertexHandle>& getSVSet() {
 		return pMesh->property(selectedVertices);
 	}
-	const std::vector<InterMesh::VertexHandle>& getSVArr() const {
+	const std::set<InterMesh::VertexHandle>& getSVSet() const {
 		return pMesh->property(selectedVertices);
 	}
 };
