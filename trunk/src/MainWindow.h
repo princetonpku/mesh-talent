@@ -68,7 +68,8 @@ private:
 	QToolBar* viewToolBar;
 	QToolBar* mouseToolBar;
 private:
-	void setAllMouseActionchecked(bool b);
+	void setAllMouseActionChecked(bool b);
+	void setAllViewActionChecked(bool b);
 
 private:
 	MeshViewerWidget* viewer;

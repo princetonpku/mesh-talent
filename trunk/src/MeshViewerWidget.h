@@ -37,6 +37,11 @@ public slots:
             open_mesh_gui(fileName);
 	}
 	void gen_graph_query();
+public:
+	void getHandles() {
+		if (!mesh_.n_vertices()) { return; }
+		pdmesh_->gethandles();
+	}
 private:
 	void genGraph();
 protected:
@@ -55,12 +60,24 @@ private:
 	void drawSelectBox(const OpenMesh::Vec3d& center, double radius);
 	void draw_select_boxes();
 private:
-	void processPick(QMouseEvent* _event);
-	void processHits(GLint hits, GLuint* buffer, bool controled);
+	// process mouse pick.
+	void processMousePickPress(QMouseEvent* _event);
+	void processMousePickMove(QMouseEvent* _event);
+	void processMousePickRelease(QMouseEvent* _event);
+	void processPickHits(GLint hits, GLuint* buffer, bool controled);
+private:
+	// process mouse deform.
+	void processMouseDeformPress(QMouseEvent* _event);
+	void processMouseDeformMove(QMouseEvent* _event);
+	void processMouseDeformRelease(QMouseEvent* _event);
+	void processDeformHits(GLint hits, GLuint* buffer);
 private:
 	InterMesh mesh_;
 	DeformableMesh3d* pdmesh_;
 	DeformationGraph* pdgraph_;
+private:
+	// stores when deformation is performing, which handles are picked.
+	std::vector<InterMesh::VertexHandle> selectedHandles;
 public:
 	enum { MOUSE_PICK = N_MOUSE_MODES, MOUSE_DEFORM };
 	enum { DRAW_GRAPH = N_DRAW_MODES };

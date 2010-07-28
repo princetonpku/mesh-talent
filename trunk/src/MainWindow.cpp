@@ -38,26 +38,36 @@ void MainWindow::createActions()
 	wireFrameAction = new QAction(tr("&WireFrame"), this);
 	wireFrameAction->setIcon(QIcon("../images/wireframe.png"));
 	wireFrameAction->setStatusTip(tr("Using wireFrame showing method"));
+	wireFrameAction->setCheckable(true);
+	wireFrameAction->setChecked(true);
 	connect(wireFrameAction, SIGNAL(triggered()), this, SLOT(wireFrameShow()));
 
 	solidFlatAction = new QAction(tr("Solid&Flat"), this);
 	solidFlatAction->setIcon(QIcon("../images/solidflat.png"));
 	solidFlatAction->setStatusTip(tr("Using solidflat showing method"));
+	solidFlatAction->setCheckable(true);
+	solidFlatAction->setChecked(false);
 	connect(solidFlatAction, SIGNAL(triggered()), this, SLOT(solidFlatShow()));
 
 	solidSmoothAction = new QAction(tr("Solid&Smooth"), this);
 	solidSmoothAction->setIcon(QIcon("../images/solidsmooth.png"));
 	solidSmoothAction->setStatusTip(tr("Using solidsmooth showing method"));
+	solidSmoothAction->setCheckable(true);
+	solidSmoothAction->setChecked(false);
 	connect(solidSmoothAction, SIGNAL(triggered()), this, SLOT(solidSmoothShow()));
 
 	pointSetAction = new QAction(tr("&PointSet"), this);
 	pointSetAction->setIcon(QIcon("../images/pointset.png"));
 	pointSetAction->setStatusTip(tr("Using pointset showing method"));
+	pointSetAction->setCheckable(true);
+	pointSetAction->setChecked(false);
 	connect(pointSetAction, SIGNAL(triggered()), this, SLOT(pointSetShow()));
 
 	showGraphAction = new QAction(tr("Show &Graph"), this);
 	showGraphAction->setIcon(QIcon("../images/showgraph.png"));
 	showGraphAction->setStatusTip(tr("Show the deformation graph"));
+	showGraphAction->setCheckable(true);
+	showGraphAction->setChecked(false);
 	connect(showGraphAction, SIGNAL(triggered()), this, SLOT(graphShow()));
 
 	viewAllAction = new QAction(tr("View &All"), this);
@@ -165,26 +175,36 @@ bool MainWindow::saveAs()
 
 void MainWindow::wireFrameShow()
 {
+	setAllViewActionChecked(false);
+	wireFrameAction->setChecked(true);
 	viewer->setDrawMode(QGLViewerWidget::WIRE_FRAME);
 }
 
 void MainWindow::solidFlatShow()
 {
+	setAllViewActionChecked(false);
+	solidFlatAction->setChecked(true);
 	viewer->setDrawMode(QGLViewerWidget::SOLID_FLAT);
 }
 
 void MainWindow::solidSmoothShow()
 {
+	setAllViewActionChecked(false);
+	solidSmoothAction->setChecked(true);
 	viewer->setDrawMode(QGLViewerWidget::SOLID_SMOOTH);
 }
 
 void MainWindow::pointSetShow()
 {
+	setAllViewActionChecked(false);
+	pointSetAction->setChecked(true);
 	viewer->setDrawMode(QGLViewerWidget::POINT_SET);
 }
 
 void MainWindow::graphShow()
 {
+	setAllViewActionChecked(false);
+	showGraphAction->setChecked(true);
 	viewer->setDrawMode(MeshViewerWidget::DRAW_GRAPH);
 }
 
@@ -196,44 +216,55 @@ void MainWindow::viewAll()
 
 void MainWindow::mouseRotate()
 {
-	setAllMouseActionchecked(false);
+	setAllMouseActionChecked(false);
 	mouseRotateAction->setChecked(true);
 	viewer->setMouseMode(QGLViewerWidget::MOUSE_ROTATE);
 }
 
 void MainWindow::mouseTranslate()
 {
-	setAllMouseActionchecked(false);
+	setAllMouseActionChecked(false);
 	mouseTranslateAction->setChecked(true);
 	viewer->setMouseMode(QGLViewerWidget::MOUSE_TRANSLATE);
 }
 
 void MainWindow::mouseScale()
 {
-	setAllMouseActionchecked(false);
+	setAllMouseActionChecked(false);
 	mouseScaleAction->setChecked(true);
 	viewer->setMouseMode(QGLViewerWidget::MOUSE_SCALE);
 }
 
 void MainWindow::mousePick()
 {
-	setAllMouseActionchecked(false);
+	setAllMouseActionChecked(false);
 	mousePickAction->setChecked(true);
 	viewer->setMouseMode(MeshViewerWidget::MOUSE_PICK);
 }
 
 void MainWindow::mouseDeform()
 {
-	setAllMouseActionchecked(false);
+	setAllMouseActionChecked(false);
 	mouseDeformAction->setChecked(true);
 	viewer->setMouseMode(MeshViewerWidget::MOUSE_DEFORM);
+	// let DeformableMesh3d get handles.
+	viewer->getHandles();
 }
 
-void MainWindow::setAllMouseActionchecked(bool b)
+void MainWindow::setAllMouseActionChecked(bool b)
 {
 	mouseRotateAction->setChecked(b);
 	mouseTranslateAction->setChecked(b);
 	mouseScaleAction->setChecked(b);
 	mousePickAction->setChecked(b);
 	mouseDeformAction->setChecked(b);
+}
+
+void MainWindow::setAllViewActionChecked(bool b)
+{
+	wireFrameAction->setChecked(b);
+	solidFlatAction->setChecked(b);
+	solidSmoothAction->setChecked(b);
+	pointSetAction->setChecked(b);
+	showGraphAction->setChecked(b);
 }
