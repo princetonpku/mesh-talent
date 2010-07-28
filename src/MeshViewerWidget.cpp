@@ -25,6 +25,7 @@ MeshViewerWidget::MeshViewerWidget(QWidget* parent)
 MeshViewerWidget::~MeshViewerWidget()
 {
 	delete pdmesh_;
+	delete pdgraph_;
 }
 
 bool MeshViewerWidget::openMesh(const char* filename)
@@ -100,22 +101,26 @@ void MeshViewerWidget::draw_scene(int drawmode)
 		draw_mesh_wireframe();
 		draw_mesh_pointset();
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		draw_select_boxes();
 		break;
 	case SOLID_FLAT:
 		glEnable(GL_LIGHTING);
 		glShadeModel(GL_FLAT);
 		draw_mesh_solidflat();
 		draw_mesh_pointset();
+		draw_select_boxes();
 		break;
 	case SOLID_SMOOTH:
 		glEnable(GL_LIGHTING);
 		glShadeModel(GL_SMOOTH);
 		draw_mesh_solidsmooth();
 		draw_mesh_pointset();
+		draw_select_boxes();
 		break;
 	case POINT_SET:
 		glDisable(GL_LIGHTING);
 		draw_mesh_pointset();
+		draw_select_boxes();
 		break;
 	case DRAW_GRAPH:
 		glDisable(GL_LIGHTING);
@@ -125,7 +130,6 @@ void MeshViewerWidget::draw_scene(int drawmode)
 	default:
 		break;
 	}
-	draw_select_boxes();
 }
 
 void MeshViewerWidget::draw_mesh_wireframe() const
@@ -133,8 +137,6 @@ void MeshViewerWidget::draw_mesh_wireframe() const
 	InterMesh::ConstFaceIter fIt(mesh_.faces_begin()),
 							 fEnd(mesh_.faces_end());
 	InterMesh::ConstFaceVertexIter fvIt;
-
-	glLoadName(mesh_.n_vertices());
 
 	glColor3f(1.0, 1.0, 0.0);
 	glBegin(GL_TRIANGLES);
@@ -204,7 +206,9 @@ void MeshViewerWidget::draw_mesh_pointset() const
 	InterMesh::ConstVertexIter vIt(mesh_.vertices_begin()),
 							vEnd(mesh_.vertices_end());
 	for (int i = 0; vIt != vEnd; ++i, ++vIt) {
-		glLoadName(i);
+		if (mouse_mode() == MOUSE_PICK) {
+			glLoadName(i);
+		}
 		glBegin(GL_POINTS);
 		glColor3bv((const GLbyte*)&mesh_.color(vIt)[0]);
 		glVertex3dv(&mesh_.point(vIt)[0]);
@@ -218,6 +222,7 @@ void MeshViewerWidget::draw_graph() const
 
 	const std::vector<DeformationGraph::Link>& edges = pdgraph_->getEdges();
 	const int size = edges.size();
+
 	// graph nodes.
 	glBegin(GL_POINTS);
 	for (int i = 0; i < size; ++i) {
@@ -245,11 +250,10 @@ void MeshViewerWidget::mousePressEvent(QMouseEvent* _event)
 		} else {                  // pick, deform.
 			switch (mm) {
 			case MOUSE_PICK:
-				// record the press pos.
-				pick_press_point_.rx() = _event->x();
-				pick_press_point_.ry() = _event->y();
+				processMousePickPress(_event);
 				break;
 			case MOUSE_DEFORM:
+				processMouseDeformPress(_event);
 				break;
 			}
 		} // end of else
@@ -267,8 +271,10 @@ void MeshViewerWidget::mouseMoveEvent(QMouseEvent* _event)
 		} else {                  // pick, deform.
 			switch (mm) {
 			case MOUSE_PICK:
+				processMousePickMove(_event);
 				break;
 			case MOUSE_DEFORM:
+				processMouseDeformMove(_event);
 				break;
 			}
 		} // end of else
@@ -285,86 +291,36 @@ void MeshViewerWidget::mouseReleaseEvent(QMouseEvent* _event)
 	} else {                  // pick, deform.
 		switch (mm) {
 		case MOUSE_PICK:
-			processPick(_event);
+			processMousePickRelease(_event);
 			break;
 		case MOUSE_DEFORM:
+			processMouseDeformRelease(_event);
 			break;
 		}
 	} // end of else
 }
 
-void MeshViewerWidget::processHits(GLint hits, GLuint* buffer, bool controled)
+void MeshViewerWidget::processPickHits(GLint hits, GLuint* buffer, bool controled)
 {
 	int n_vertices = mesh_.n_vertices();
-	if (!n_vertices) return;
+	if (!n_vertices) return; // no mesh.
 
 	if (!controled) {
 		pdmesh_->getSVSet().clear();
 	}
 
 	GLuint* ptr = buffer;
-	std::cout << "hits = " << hits << std::endl;
 	for (int i = 0; i < hits; ++i) {
 		int names = *ptr;
 		assert(names == 1);
-		*ptr++;
-		std::cout << "   z1 is " << *ptr;
-		*ptr++;
-		std::cout << "   z2 is " << *ptr;
-		*ptr++;
-		std::cout << "   index is " << *ptr << std::endl;;
-		assert(*ptr <= n_vertices);
-		if ((int)(*ptr) < n_vertices) {
-			// set vertex color
-			//mesh_.set_color(InterMesh::VertexHandle(*ptr), InterMesh::Color(0, 0, 127));
+		ptr += 3;
+		int index = *ptr;
+		assert(index <= n_vertices);
+		if (index < n_vertices) {
 			pdmesh_->getSVSet().insert(InterMesh::VertexHandle(*ptr));
 		}
-		*ptr++;
+		ptr++;
 	}
-}
-
-void MeshViewerWidget::processPick(QMouseEvent* _event)
-{
-	std::vector<GLuint> selectBuf(mesh_.n_vertices()); // assert enough space.
-	GLint hits;
-	GLint viewport[4];
-
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	glSelectBuffer(mesh_.n_vertices(), &selectBuf[0]);
-	glRenderMode(GL_SELECT);
-	
-	glInitNames();
-	glPushName(0);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	if (_event->x() == pick_press_point_.x() && _event->y() == pick_press_point_.y()) { // point select.
-		gluPickMatrix((GLdouble)(_event->x()), (GLdouble)(viewport[3]-_event->y()), 5.0, 5.0, viewport);
-	} else { // rect select.
-		// compute the pick rect.
-		GLdouble x1 = (GLdouble)(_event->x());
-		GLdouble y1 = (GLdouble)(viewport[3]-(_event->y()));
-		GLdouble x2 = (GLdouble)(pick_press_point_.x());
-		GLdouble y2 = (GLdouble)(viewport[3]-(pick_press_point_.y()));
-		GLdouble detX = fabs(x1-x2);
-		GLdouble detY = fabs(y1-y2);
-		GLdouble cenX = (x1+x2)/2;
-		GLdouble cenY = (y1+y2)/2;
-		std::cout << "The rect is " << cenX << " " << cenY << " " << detX << " " << detY << std::endl;
-		gluPickMatrix(cenX, cenY, detX, detY, viewport);
-	}
-	glMultMatrixd(projection_matrix());
-	draw_scene(draw_mode());
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glFlush();
-
-	hits = glRenderMode(GL_RENDER);
-	processHits(hits, &selectBuf[0], _event->modifiers() == ControlModifier);
-	updateGL();
 }
 
 void MeshViewerWidget::drawSelectBox(const Vec3d& center, double radius)
@@ -420,6 +376,9 @@ void MeshViewerWidget::draw_select_boxes()
 	for (CITER cit = selectedVertices.begin(); cit != selectedVertices.end(); ++cit) {
 		Vec3d center = mesh_.point(*cit);
 		double radius = 0.5;
+		if (mouse_mode() == MOUSE_DEFORM) {
+			glLoadName(cit->idx());
+		}
 		drawSelectBox(center, radius);
 	}
 }
@@ -442,4 +401,120 @@ void MeshViewerWidget::gen_graph_query()
 				dialog.EconLineEdit->text().toDouble(),
 				20);
 	}
+}
+
+void MeshViewerWidget::processMousePickPress(QMouseEvent* _event)
+{
+	// record the press pos.
+	pick_press_point_.rx() = _event->x();
+	pick_press_point_.ry() = _event->y();
+}
+
+void MeshViewerWidget::processMousePickMove(QMouseEvent* _event)
+{
+	// do nothing.
+}
+
+void MeshViewerWidget::processMousePickRelease(QMouseEvent* _event)
+{
+	std::vector<GLuint> selectBuf(mesh_.n_vertices()); // assert enough space.
+	GLint hits;
+	GLint viewport[4];
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glSelectBuffer(mesh_.n_vertices(), &selectBuf[0]);
+	glRenderMode(GL_SELECT);
+	
+	glInitNames();
+	glPushName(mesh_.n_vertices());
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	if (_event->x() == pick_press_point_.x() && _event->y() == pick_press_point_.y()) { // point select.
+		gluPickMatrix((GLdouble)(_event->x()), (GLdouble)(viewport[3]-_event->y()), 5.0, 5.0, viewport);
+	} else { // rect select.
+		// compute the pick rect.
+		GLdouble x1 = (GLdouble)(_event->x());
+		GLdouble y1 = (GLdouble)(viewport[3]-(_event->y()));
+		GLdouble x2 = (GLdouble)(pick_press_point_.x());
+		GLdouble y2 = (GLdouble)(viewport[3]-(pick_press_point_.y()));
+		GLdouble detX = fabs(x1-x2);
+		GLdouble detY = fabs(y1-y2);
+		GLdouble cenX = (x1+x2)/2;
+		GLdouble cenY = (y1+y2)/2;
+		gluPickMatrix(cenX, cenY, detX, detY, viewport);
+	}
+	glMultMatrixd(projection_matrix());
+	draw_scene(draw_mode());
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glFlush();
+
+	hits = glRenderMode(GL_RENDER);
+	processPickHits(hits, &selectBuf[0], _event->modifiers() == ControlModifier);
+	updateGL();
+}
+
+void MeshViewerWidget::processMouseDeformPress(QMouseEvent* _event)
+{
+	std::vector<GLuint> selectBuf(mesh_.n_vertices()); // assert enough space.
+	GLint hits;
+	GLint viewport[4];
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glSelectBuffer(mesh_.n_vertices(), &selectBuf[0]);
+	glRenderMode(GL_SELECT);
+	
+	glInitNames();
+	glPushName(mesh_.n_vertices());
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	gluPickMatrix((GLdouble)(_event->x()), (GLdouble)(viewport[3]-_event->y()), 5.0, 5.0, viewport);
+	glMultMatrixd(projection_matrix());
+	draw_scene(draw_mode());
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glFlush();
+
+	hits = glRenderMode(GL_RENDER);
+	processDeformHits(hits, &selectBuf[0]);
+	//updateGL();
+
+}
+
+void MeshViewerWidget::processMouseDeformMove(QMouseEvent* _event)
+{
+	
+}
+
+void MeshViewerWidget::processMouseDeformRelease(QMouseEvent* _event)
+{}
+
+void MeshViewerWidget::processDeformHits(GLint hits, GLuint* buffer)
+{
+	int n_vertices = mesh_.n_vertices();
+	if (!n_vertices) return; // no mesh.
+
+	GLuint* ptr = buffer;
+	selectedHandles.clear();
+	for (int i = 0; i < hits; ++i) {
+		int names = *ptr;
+		assert(names == 1);
+		ptr += 3;
+		int index = *ptr;
+		assert(index <= n_vertices);
+		if (index < n_vertices) {
+			selectedHandles.push_back(InterMesh::VertexHandle(index));
+		}
+		ptr++;
+	}
+	sort(selectedHandles.begin(), selectedHandles.end());
+
 }

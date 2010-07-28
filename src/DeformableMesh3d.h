@@ -142,6 +142,13 @@ private:
 	std::vector<InterMesh::VertexHandle> handleIDs;
 	/* specifiedposArr's every element is correspond to the vertex with a index in handleIDs. */
 	std::vector<P3d> specifiedposArr;
+public:
+	std::vector<InterMesh::VertexHandle>& getHandleIDs() {
+		return handleIDs;
+	}
+	const std::vector<InterMesh::VertexHandle>& getHandleIDs() const {
+		return handleIDs;
+	}
 private:
 	// Every Vertex which is selected, its handle will be stored in selectedVertices.
 	OpenMesh::MPropHandleT<std::set<InterMesh::VertexHandle> > selectedVertices;
