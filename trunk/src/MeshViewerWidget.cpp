@@ -65,10 +65,6 @@ bool MeshViewerWidget::openMesh(const char* filename)
 		set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
 		box_radius_ = 0.005 * (bbMin-bbMax).norm();
 
-#if defined(WIN32)
-		updateGL();
-#endif
-
 		// set deformable mesh.
 		pdmesh_ = new DeformableMesh3d(&mesh_);
 
