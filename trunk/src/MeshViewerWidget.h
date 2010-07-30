@@ -24,6 +24,7 @@ public:
 	bool openMesh(const char* filename);
 	InterMesh& mesh() { return mesh_; };
 	const InterMesh& mesh() const { return mesh_; };
+	bool graphGened() const { return !(pdgraph_ == NULL); }
 public slots:
 	void open_mesh_query() {
         QString fileName = QFileDialog::getOpenFileName(this,
@@ -59,6 +60,7 @@ private:
 	void draw_graph() const;
 	void drawSelectBox(const OpenMesh::Vec3d& center, double radius);
 	void draw_select_boxes();
+	double box_radius_;
 private:
 	// process mouse pick.
 	void processMousePickPress(QMouseEvent* _event);
@@ -77,7 +79,7 @@ private:
 	DeformationGraph* pdgraph_;
 private:
 	// stores when deformation is performing, which handles are picked.
-	std::vector<InterMesh::VertexHandle> selectedHandles;
+	std::vector<int> selectedHandles;
 public:
 	enum { MOUSE_PICK = N_MOUSE_MODES, MOUSE_DEFORM };
 	enum { DRAW_GRAPH = N_DRAW_MODES };

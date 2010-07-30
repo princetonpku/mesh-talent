@@ -49,11 +49,11 @@ public:
 	}
 	
 	// make all the selected vertex translate by t.
-	void translate(const V3d& t);
+	void translate(const std::vector<int>& selectedHandles, const V3d& t);
 	// make all the selected vertex scaling by their center.
-	void scale(double lamada);
+	void scale(const std::vector<int>& selectedHandles, double lamada);
 	// make all the selected vertex rotate round a given vector starting at a given point, the angle is beta.
-	void rotate(const V3d& t, const P3d& p, double beta);
+	void rotate(const std::vector<int>& selectedHandles, const V3d& t, const P3d& p, double beta);
 
 	void gethandles();
 	size_t handleSize() const {
@@ -73,7 +73,7 @@ private:
 	}
 private:
 	template <typename FUN>
-	void specifyposArr(FUN fun); // fill specifiedposArr with the pos that user specified.
+	void specifyposArr(const std::vector<int>& selectedHandles, FUN fun); // fill specifiedposArr with the pos that user specified.
 	class translateFun {
 	public:
 		translateFun(const V3d& _t) : t(_t) {}

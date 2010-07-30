@@ -155,6 +155,7 @@ addLength	GaussNewtonSolver.cpp	/^void GaussNewtonSolver::addLength(const std::v
 addNeighborReg	GaussNewtonSolver.cpp	/^void GaussNewtonSolver::addNeighborReg(const std::vector<double>& x, SparseMatrix<double, int>& J,$/;"	f	class:meshtalent::GaussNewtonSolver
 beta	DeformableMesh3d.h	/^		double beta;$/;"	m	class:meshtalent::DeformableMesh3d::rotateFun
 boundingboxVolume	DeformableMesh3d.cpp	/^double DeformableMesh3d::boundingboxVolume() const$/;"	f	class:meshtalent::DeformableMesh3d
+box_radius_	MeshViewerWidget.h	/^	double box_radius_;$/;"	m	class:MeshViewerWidget
 center	QGLViewerWidget.h	/^	const OpenMesh::Vec3d& center() const { return center_; }$/;"	f	class:QGLViewerWidget
 centerOfSV	DeformableMesh3d.cpp	/^DeformableMesh3d::P3d DeformableMesh3d::centerOfSV() const$/;"	f	class:meshtalent::DeformableMesh3d
 center_	QGLViewerWidget.h	/^	OpenMesh::Vec3d  center_;$/;"	m	class:QGLViewerWidget
@@ -168,6 +169,7 @@ computeLength	GaussNewtonSolver.cpp	/^GaussNewtonSolver::V3d GaussNewtonSolver::
 computeNeighborReg	GaussNewtonSolver.cpp	/^GaussNewtonSolver::V3d GaussNewtonSolver::computeNeighborReg(const std::vector<double>& x, int j, int k) const$/;"	f	class:meshtalent::GaussNewtonSolver
 createActions	MainWindow.cpp	/^void MainWindow::createActions()$/;"	f	class:MainWindow
 createMenus	MainWindow.cpp	/^void MainWindow::createMenus()$/;"	f	class:MainWindow
+createStatusBar	MainWindow.cpp	/^void MainWindow::createStatusBar()$/;"	f	class:MainWindow
 createToolBars	MainWindow.cpp	/^void MainWindow::createToolBars()$/;"	f	class:MainWindow
 deform	DeformableMesh3d.cpp	/^void DeformableMesh3d::deform()$/;"	f	class:meshtalent::DeformableMesh3d
 deleteRadiusLabel	genGraphDialog.h	/^	QLabel* deleteRadiusLabel;$/;"	m	class:GenGraphDialog
@@ -203,18 +205,18 @@ getColptr	math/SparseMatrix.h	/^	std::vector<STYPE>& getColptr() {$/;"	f	class:m
 getEdges	DeformationGraph.h	/^	const std::vector<Link>& getEdges() const { return edges; }$/;"	f	class:meshtalent::DeformationGraph
 getEdges	DeformationGraph.h	/^	std::vector<Link>& getEdges() { return edges; }$/;"	f	class:meshtalent::DeformationGraph
 getFromx	DeformationGraph.cpp	/^void DeformationGraph::getFromx(const std::vector<double>& x)$/;"	f	class:meshtalent::DeformationGraph
+getHandleIDs	DeformableMesh3d.h	/^	const std::vector<InterMesh::VertexHandle>& getHandleIDs() const {$/;"	f	class:meshtalent::DeformableMesh3d
+getHandleIDs	DeformableMesh3d.h	/^	std::vector<InterMesh::VertexHandle>& getHandleIDs() {$/;"	f	class:meshtalent::DeformableMesh3d
+getHandles	MeshViewerWidget.h	/^	void getHandles() {$/;"	f	class:MeshViewerWidget
 getRowind	math/SparseMatrix.h	/^	const std::vector<STYPE>& getRowind() const {$/;"	f	class:meshtalent::SparseMatrix
 getRowind	math/SparseMatrix.h	/^	std::vector<STYPE>& getRowind() {$/;"	f	class:meshtalent::SparseMatrix
 getSVSet	DeformableMesh3d.h	/^	const std::set<InterMesh::VertexHandle>& getSVSet() const {$/;"	f	class:meshtalent::DeformableMesh3d
 getSVSet	DeformableMesh3d.h	/^	std::set<InterMesh::VertexHandle>& getSVSet() {$/;"	f	class:meshtalent::DeformableMesh3d
-getStaticMetaObject	moc_MainWindow.cpp	/^const QMetaObject &MainWindow::getStaticMetaObject() { return staticMetaObject; }$/;"	f	class:MainWindow
-getStaticMetaObject	moc_MeshViewerWidget.cpp	/^const QMetaObject &MeshViewerWidget::getStaticMetaObject() { return staticMetaObject; }$/;"	f	class:MeshViewerWidget
-getStaticMetaObject	moc_QGLViewerWidget.cpp	/^const QMetaObject &QGLViewerWidget::getStaticMetaObject() { return staticMetaObject; }$/;"	f	class:QGLViewerWidget
-getStaticMetaObject	moc_genGraphDialog.cpp	/^const QMetaObject &GenGraphDialog::getStaticMetaObject() { return staticMetaObject; }$/;"	f	class:GenGraphDialog
 getValues	math/SparseMatrix.h	/^	const std::vector<VTYPE>& getValues() const {$/;"	f	class:meshtalent::SparseMatrix
 getValues	math/SparseMatrix.h	/^	std::vector<VTYPE>& getValues() {$/;"	f	class:meshtalent::SparseMatrix
 gethandles	DeformableMesh3d.cpp	/^void DeformableMesh3d::gethandles()$/;"	f	class:meshtalent::DeformableMesh3d
 getpMesh	DeformableMesh3d.h	/^	InterMesh* getpMesh() const {$/;"	f	class:meshtalent::DeformableMesh3d
+graphGened	MeshViewerWidget.h	/^	bool graphGened() const { return !(pdgraph_ == NULL); }$/;"	f	class:MeshViewerWidget
 graphShow	MainWindow.cpp	/^void MainWindow::graphShow()$/;"	f	class:MainWindow
 handleIDs	DeformableMesh3d.h	/^	std::vector<InterMesh::VertexHandle> handleIDs;$/;"	m	class:meshtalent::DeformableMesh3d
 handleSize	DeformableMesh3d.h	/^	size_t handleSize() const {$/;"	f	class:meshtalent::DeformableMesh3d
@@ -252,10 +254,6 @@ meshtalent	math/SparseMatrix.h	/^namespace meshtalent {$/;"	n
 meshtalent	math/matrix3d.h	/^namespace meshtalent {$/;"	n
 meshtalent	math/point3d.h	/^namespace meshtalent {$/;"	n
 meshtalent	math/vector3d.h	/^namespace meshtalent {$/;"	n
-metaObject	moc_MainWindow.cpp	/^const QMetaObject *MainWindow::metaObject() const$/;"	f	class:MainWindow
-metaObject	moc_MeshViewerWidget.cpp	/^const QMetaObject *MeshViewerWidget::metaObject() const$/;"	f	class:MeshViewerWidget
-metaObject	moc_QGLViewerWidget.cpp	/^const QMetaObject *QGLViewerWidget::metaObject() const$/;"	f	class:QGLViewerWidget
-metaObject	moc_genGraphDialog.cpp	/^const QMetaObject *GenGraphDialog::metaObject() const$/;"	f	class:GenGraphDialog
 modelview_matrix	QGLViewerWidget.h	/^	const GLdouble* modelview_matrix() const  { return modelview_matrix_;  }$/;"	f	class:QGLViewerWidget
 modelview_matrix_	QGLViewerWidget.h	/^	GLdouble modelview_matrix_[16];$/;"	m	class:QGLViewerWidget
 mouseDeform	MainWindow.cpp	/^void MainWindow::mouseDeform()$/;"	f	class:MainWindow
@@ -283,7 +281,6 @@ nodeNumLineEdit	genGraphDialog.h	/^	QLineEdit* nodeNumLineEdit;$/;"	m	class:GenG
 nodecordcoll	DeformableMesh3d.cpp	/^	const std::vector<P3d>& nodecordcoll;$/;"	m	class:meshtalent::CmpDist	file:
 nodenum	DeformationGraph.h	/^	const int nodenum; \/\/ the num of nodes of this graph$/;"	m	class:meshtalent::DeformationGraph
 normalize	math/vector3d.h	/^	const Vector3d<T> normalize() const {$/;"	f	class:meshtalent::math::Vector3d
-open	MainWindow.cpp	/^void MainWindow::open()$/;"	f	class:MainWindow
 openAction	MainWindow.h	/^	QAction* openAction;$/;"	m	class:MainWindow
 openMesh	MeshViewerWidget.cpp	/^bool MeshViewerWidget::openMesh(const char* filename)$/;"	f	class:MeshViewerWidget
 open_mesh_gui	MeshViewerWidget.cpp	/^void MeshViewerWidget::open_mesh_gui(QString fname)$/;"	f	class:MeshViewerWidget
@@ -349,6 +346,7 @@ pdmesh_	MeshViewerWidget.h	/^	DeformableMesh3d* pdmesh_;$/;"	m	class:MeshViewerW
 pick_press_point_	MeshViewerWidget.h	/^	QPoint pick_press_point_; \/\/ for pick mode.$/;"	m	class:MeshViewerWidget
 pointSetAction	MainWindow.h	/^	QAction* pointSetAction;$/;"	m	class:MainWindow
 pointSetShow	MainWindow.cpp	/^void MainWindow::pointSetShow()$/;"	f	class:MainWindow
+processDeformHits	MeshViewerWidget.cpp	/^void MeshViewerWidget::processDeformHits(GLint hits, GLuint* buffer)$/;"	f	class:MeshViewerWidget
 processMouseDeformMove	MeshViewerWidget.cpp	/^void MeshViewerWidget::processMouseDeformMove(QMouseEvent* _event)$/;"	f	class:MeshViewerWidget
 processMouseDeformPress	MeshViewerWidget.cpp	/^void MeshViewerWidget::processMouseDeformPress(QMouseEvent* _event)$/;"	f	class:MeshViewerWidget
 processMouseDeformRelease	MeshViewerWidget.cpp	/^void MeshViewerWidget::processMouseDeformRelease(QMouseEvent* _event)$/;"	f	class:MeshViewerWidget
@@ -359,22 +357,6 @@ processPickHits	MeshViewerWidget.cpp	/^void MeshViewerWidget::processPickHits(GL
 projection_matrix	QGLViewerWidget.h	/^	const GLdouble* projection_matrix() const { return projection_matrix_; }$/;"	f	class:QGLViewerWidget
 projection_matrix_	QGLViewerWidget.h	/^	GLdouble projection_matrix_[16];$/;"	m	class:QGLViewerWidget
 ptracefile	debugtrace.h	/^		FILE* ptracefile;$/;"	m	class:meshtalent::DebugTrace
-qt_meta_data_GenGraphDialog	moc_genGraphDialog.cpp	/^static const uint qt_meta_data_GenGraphDialog[] = {$/;"	v	file:
-qt_meta_data_MainWindow	moc_MainWindow.cpp	/^static const uint qt_meta_data_MainWindow[] = {$/;"	v	file:
-qt_meta_data_MeshViewerWidget	moc_MeshViewerWidget.cpp	/^static const uint qt_meta_data_MeshViewerWidget[] = {$/;"	v	file:
-qt_meta_data_QGLViewerWidget	moc_QGLViewerWidget.cpp	/^static const uint qt_meta_data_QGLViewerWidget[] = {$/;"	v	file:
-qt_meta_stringdata_GenGraphDialog	moc_genGraphDialog.cpp	/^static const char qt_meta_stringdata_GenGraphDialog[] = {$/;"	v	file:
-qt_meta_stringdata_MainWindow	moc_MainWindow.cpp	/^static const char qt_meta_stringdata_MainWindow[] = {$/;"	v	file:
-qt_meta_stringdata_MeshViewerWidget	moc_MeshViewerWidget.cpp	/^static const char qt_meta_stringdata_MeshViewerWidget[] = {$/;"	v	file:
-qt_meta_stringdata_QGLViewerWidget	moc_QGLViewerWidget.cpp	/^static const char qt_meta_stringdata_QGLViewerWidget[] = {$/;"	v	file:
-qt_metacall	moc_MainWindow.cpp	/^int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)$/;"	f	class:MainWindow
-qt_metacall	moc_MeshViewerWidget.cpp	/^int MeshViewerWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)$/;"	f	class:MeshViewerWidget
-qt_metacall	moc_QGLViewerWidget.cpp	/^int QGLViewerWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)$/;"	f	class:QGLViewerWidget
-qt_metacall	moc_genGraphDialog.cpp	/^int GenGraphDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)$/;"	f	class:GenGraphDialog
-qt_metacast	moc_MainWindow.cpp	/^void *MainWindow::qt_metacast(const char *_clname)$/;"	f	class:MainWindow
-qt_metacast	moc_MeshViewerWidget.cpp	/^void *MeshViewerWidget::qt_metacast(const char *_clname)$/;"	f	class:MeshViewerWidget
-qt_metacast	moc_QGLViewerWidget.cpp	/^void *QGLViewerWidget::qt_metacast(const char *_clname)$/;"	f	class:QGLViewerWidget
-qt_metacast	moc_genGraphDialog.cpp	/^void *GenGraphDialog::qt_metacast(const char *_clname)$/;"	f	class:GenGraphDialog
 radius	QGLViewerWidget.h	/^	float radius() const { return radius_; }$/;"	f	class:QGLViewerWidget
 radius_	QGLViewerWidget.h	/^	float            radius_;$/;"	m	class:QGLViewerWidget
 relateNumLabel	genGraphDialog.h	/^	QLabel* relateNumLabel;$/;"	m	class:GenGraphDialog
@@ -382,7 +364,7 @@ relateNumLineEdit	genGraphDialog.h	/^	QLineEdit* relateNumLineEdit;$/;"	m	class:
 relatenum	DeformationGraph.h	/^	const int relatenum; \/\/ the num of related nodes of each mesh vertex$/;"	m	class:meshtalent::DeformationGraph
 reportTox	DeformationGraph.cpp	/^void DeformationGraph::reportTox(std::vector<double>& x) const$/;"	f	class:meshtalent::DeformationGraph
 resizeGL	QGLViewerWidget.cpp	/^void QGLViewerWidget::resizeGL( int _w, int _h )$/;"	f	class:QGLViewerWidget
-rotate	DeformableMesh3d.cpp	/^void DeformableMesh3d::rotate(const V3d& t, const P3d& p, double beta)$/;"	f	class:meshtalent::DeformableMesh3d
+rotate	DeformableMesh3d.cpp	/^void DeformableMesh3d::rotate(const std::vector<int>& selectedHandles, const V3d& t, const P3d& p, double beta)$/;"	f	class:meshtalent::DeformableMesh3d
 rotate	QGLViewerWidget.cpp	/^void QGLViewerWidget::rotate(const Vec3d& _axis, float _angle)$/;"	f	class:QGLViewerWidget
 rotateFun	DeformableMesh3d.h	/^		rotateFun(const P3d& _pcenter, const V3d& _u, double _beta) : pcenter(_pcenter), u(_u), beta(_beta) {$/;"	f	class:meshtalent::DeformableMesh3d::rotateFun
 rotateFun	DeformableMesh3d.h	/^	class rotateFun {$/;"	c	class:meshtalent::DeformableMesh3d
@@ -397,9 +379,10 @@ save	MainWindow.cpp	/^bool MainWindow::save()$/;"	f	class:MainWindow
 saveAction	MainWindow.h	/^	QAction* saveAction;$/;"	m	class:MainWindow
 saveAs	MainWindow.cpp	/^bool MainWindow::saveAs()$/;"	f	class:MainWindow
 saveAsAction	MainWindow.h	/^	QAction* saveAsAction;$/;"	m	class:MainWindow
-scale	DeformableMesh3d.cpp	/^void DeformableMesh3d::scale(double lamada)$/;"	f	class:meshtalent::DeformableMesh3d
+scale	DeformableMesh3d.cpp	/^void DeformableMesh3d::scale(const std::vector<int>& selectedHandles, double lamada)$/;"	f	class:meshtalent::DeformableMesh3d
 scaleFun	DeformableMesh3d.h	/^		scaleFun(const P3d& _pcenter, double _lamada) : pcenter(_pcenter), lamada(_lamada) {}$/;"	f	class:meshtalent::DeformableMesh3d::scaleFun
 scaleFun	DeformableMesh3d.h	/^	class scaleFun {$/;"	c	class:meshtalent::DeformableMesh3d
+selectedHandles	MeshViewerWidget.h	/^	std::vector<int> selectedHandles;$/;"	m	class:MeshViewerWidget
 selectedVertices	DeformableMesh3d.h	/^	OpenMesh::MPropHandleT<std::set<InterMesh::VertexHandle> > selectedVertices;$/;"	m	class:meshtalent::DeformableMesh3d
 setAllMouseActionChecked	MainWindow.cpp	/^void MainWindow::setAllMouseActionChecked(bool b)$/;"	f	class:MainWindow
 setAllViewActionChecked	MainWindow.cpp	/^void MainWindow::setAllViewActionChecked(bool b)$/;"	f	class:MainWindow
@@ -416,18 +399,14 @@ solidFlatShow	MainWindow.cpp	/^void MainWindow::solidFlatShow()$/;"	f	class:Main
 solidSmoothAction	MainWindow.h	/^	QAction* solidSmoothAction;$/;"	m	class:MainWindow
 solidSmoothShow	MainWindow.cpp	/^void MainWindow::solidSmoothShow()$/;"	f	class:MainWindow
 specifiedposArr	DeformableMesh3d.h	/^	std::vector<P3d> specifiedposArr;$/;"	m	class:meshtalent::DeformableMesh3d
-specifyposArr	DeformableMesh3d.cpp	/^void DeformableMesh3d::specifyposArr(FUN fun)$/;"	f	class:meshtalent::DeformableMesh3d
+specifyposArr	DeformableMesh3d.cpp	/^void DeformableMesh3d::specifyposArr(const std::vector<int>& selectedHandles, FUN fun)$/;"	f	class:meshtalent::DeformableMesh3d
 srand	DeformationGraph.cpp	/^	static void srand(unsigned int s) {$/;"	f	class:meshtalent::RandDoubleGenerator
 srand	DeformationGraph.cpp	/^	static void srand(unsigned int s) {$/;"	f	class:meshtalent::RandUIntGenerator
-staticMetaObject	moc_MainWindow.cpp	/^const QMetaObject MainWindow::staticMetaObject = {$/;"	m	class:MainWindow	file:
-staticMetaObject	moc_MeshViewerWidget.cpp	/^const QMetaObject MeshViewerWidget::staticMetaObject = {$/;"	m	class:MeshViewerWidget	file:
-staticMetaObject	moc_QGLViewerWidget.cpp	/^const QMetaObject QGLViewerWidget::staticMetaObject = {$/;"	m	class:QGLViewerWidget	file:
-staticMetaObject	moc_genGraphDialog.cpp	/^const QMetaObject GenGraphDialog::staticMetaObject = {$/;"	m	class:GenGraphDialog	file:
 step	GaussNewtonSolver.h	/^	static const int step = 12;$/;"	m	class:meshtalent::GaussNewtonSolver
 surfaceArea	DeformableMesh3d.cpp	/^double DeformableMesh3d::surfaceArea() const$/;"	f	class:meshtalent::DeformableMesh3d
 t	DeformableMesh3d.h	/^		const V3d t;$/;"	m	class:meshtalent::DeformableMesh3d::translateFun
 t	DeformationGraph.h	/^		V3d t; \/\/ the translation transformation vector.$/;"	m	struct:meshtalent::DeformationGraph::GraphNode
-translate	DeformableMesh3d.cpp	/^void DeformableMesh3d::translate(const V3d& t)$/;"	f	class:meshtalent::DeformableMesh3d
+translate	DeformableMesh3d.cpp	/^void DeformableMesh3d::translate(const std::vector<int>& selectedHandles, const V3d& t)$/;"	f	class:meshtalent::DeformableMesh3d
 translate	QGLViewerWidget.cpp	/^void QGLViewerWidget::translate(const Vec3d& _trans)$/;"	f	class:QGLViewerWidget
 translateFun	DeformableMesh3d.h	/^		translateFun(const V3d& _t) : t(_t) {}$/;"	f	class:meshtalent::DeformableMesh3d::translateFun
 translateFun	DeformableMesh3d.h	/^	class translateFun {$/;"	c	class:meshtalent::DeformableMesh3d

@@ -10,6 +10,7 @@ MainWindow::MainWindow()
 	createActions();
 	createMenus();
 	createToolBars();
+	createStatusBar();
 }
 
 void MainWindow::createActions()
@@ -158,10 +159,15 @@ void MainWindow::createToolBars()
 	mouseToolBar->addAction(mouseDeformAction);
 }
 
-void MainWindow::open()
+void MainWindow::createStatusBar()
 {
+	QLabel* label = new QLabel(tr("no mesh"));
+	label->setAlignment(Qt::AlignHCenter);
+
+	statusBar()->addWidget(label);
 
 }
+
 
 bool MainWindow::save()
 {
@@ -203,6 +209,16 @@ void MainWindow::pointSetShow()
 
 void MainWindow::graphShow()
 {
+	if (!viewer->graphGened()) {
+		int ret = QMessageBox::warning(this, tr("show the graph"), 
+				tr("The graph has not been generated\nWould you like to generate it now?"), 
+				QMessageBox::Ok | QMessageBox::Cancel);
+		if (ret) {
+			viewer->gen_graph_query();
+		} else {
+			return;
+		}
+	}
 	setAllViewActionChecked(false);
 	showGraphAction->setChecked(true);
 	viewer->setDrawMode(MeshViewerWidget::DRAW_GRAPH);
