@@ -8,6 +8,21 @@
 #include "debugtrace.h"
 // ------------------------------
 
+#ifdef WIN32
+static void srand48(unsigned int s) 
+{
+	srand(s);
+}
+static long lrand48()
+{
+	return rand() * (RAND_MAX+1) + rand();
+}
+static double drand48() 
+{
+	return lrand48() / (static_cast<double>(RAND_MAX+1) * static_cast<double>(RAND_MAX+1));
+}
+#endif
+
 namespace meshtalent {
 
 class RandDoubleGenerator {
