@@ -11,13 +11,13 @@ class MainWindow : public QMainWindow {
 public:
 	MainWindow();
 private slots:
-	void open();
 	bool save();
 	bool saveAs();
 private:
 	void createActions();
 	void createMenus();
 	void createToolBars();
+	void createStatusBar();
 private slots:
 	void wireFrameShow();
 	void solidFlatShow();

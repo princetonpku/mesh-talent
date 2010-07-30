@@ -18,7 +18,7 @@ using namespace OpenMesh;
 using namespace Qt;
 
 MeshViewerWidget::MeshViewerWidget(QWidget* parent)
- : QGLViewerWidget(parent), pdmesh_(NULL), pdgraph_(NULL)
+ : QGLViewerWidget(parent), pdmesh_(NULL), pdgraph_(NULL), box_radius_(0.0)
 {
 }
 
@@ -61,8 +61,9 @@ bool MeshViewerWidget::openMesh(const char* filename)
 			bbMax.maximize(OpenMesh::vector_cast<Vec3d>(mesh_.point(vIt)));
 		}
     
-		// set center and radius
+		// set center and radius and box's radius.
 		set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
+		box_radius_ = 0.005 * (bbMin-bbMax).norm();
 
 #if defined(WIN32)
 		updateGL();
@@ -108,6 +109,7 @@ void MeshViewerWidget::draw_scene(int drawmode)
 		glShadeModel(GL_FLAT);
 		draw_mesh_solidflat();
 		draw_mesh_pointset();
+		glDisable(GL_LIGHTING);
 		draw_select_boxes();
 		break;
 	case SOLID_SMOOTH:
@@ -115,6 +117,7 @@ void MeshViewerWidget::draw_scene(int drawmode)
 		glShadeModel(GL_SMOOTH);
 		draw_mesh_solidsmooth();
 		draw_mesh_pointset();
+		glDisable(GL_LIGHTING);
 		draw_select_boxes();
 		break;
 	case POINT_SET:
@@ -211,6 +214,7 @@ void MeshViewerWidget::draw_mesh_pointset() const
 		}
 		glBegin(GL_POINTS);
 		glColor3bv((const GLbyte*)&mesh_.color(vIt)[0]);
+		glNormal3dv(&mesh_.normal(vIt)[0]);
 		glVertex3dv(&mesh_.point(vIt)[0]);
 		glEnd();
 	}
@@ -223,6 +227,7 @@ void MeshViewerWidget::draw_graph() const
 	const std::vector<DeformationGraph::Link>& edges = pdgraph_->getEdges();
 	const int size = edges.size();
 
+	glColor3f(0.0, 1.0, 0.0);
 	// graph nodes.
 	glBegin(GL_POINTS);
 	for (int i = 0; i < size; ++i) {
@@ -373,13 +378,13 @@ void MeshViewerWidget::draw_select_boxes()
 		pdmesh_->getSVSet();
 	glColor3f(1.0, 0.0, 1.0);
 	typedef std::set<InterMesh::VertexHandle>::const_iterator CITER;
-	for (CITER cit = selectedVertices.begin(); cit != selectedVertices.end(); ++cit) {
+	int i = 0;
+	for (CITER cit = selectedVertices.begin(); cit != selectedVertices.end(); ++cit, ++i) {
 		Vec3d center = mesh_.point(*cit);
-		double radius = 0.5;
 		if (mouse_mode() == MOUSE_DEFORM) {
-			glLoadName(cit->idx());
+			glLoadName(i);
 		}
-		drawSelectBox(center, radius);
+		drawSelectBox(center, box_radius_);
 	}
 }
 
@@ -491,11 +496,38 @@ void MeshViewerWidget::processMouseDeformPress(QMouseEvent* _event)
 
 void MeshViewerWidget::processMouseDeformMove(QMouseEvent* _event)
 {
-	
+	if (selectedHandles.empty()) { return; } // no handle is selected.
+
+	// get one handle's pos
+	int handleIndex = selectedHandles[0];
+	std::vector<InterMesh::VertexHandle>& handleIDs = pdmesh_->getHandleIDs();
+	assert(handleIndex < handleIDs.size());
+	InterMesh::VertexHandle vh = handleIDs[handleIndex];
+	InterMesh::Point p = mesh_.point(vh);
+
+	// get z-buffer of this handle.
+	GLdouble winx, winy, winz;
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	gluProject(p[0], p[1], p[2], modelview_matrix(), projection_matrix(), 
+			viewport, &winx, &winy, &winz);
+
+	// get the translation vector.
+	GLdouble objx, objy, objz;
+	gluUnProject((GLdouble)(_event->x()), (GLdouble)(viewport[3]-_event->y()), 
+			winz, modelview_matrix(), projection_matrix(), viewport, 
+			&objx, &objy, &objz);
+	typedef DeformableMesh3d::V3d V3d;
+	V3d v(objx - p[0], objy - p[1], objz - p[2]);
+
+	pdmesh_->translate(selectedHandles, v);
+	updateGL();
 }
 
 void MeshViewerWidget::processMouseDeformRelease(QMouseEvent* _event)
-{}
+{
+	selectedHandles.clear();
+}
 
 void MeshViewerWidget::processDeformHits(GLint hits, GLuint* buffer)
 {
@@ -511,10 +543,9 @@ void MeshViewerWidget::processDeformHits(GLint hits, GLuint* buffer)
 		int index = *ptr;
 		assert(index <= n_vertices);
 		if (index < n_vertices) {
-			selectedHandles.push_back(InterMesh::VertexHandle(index));
+			selectedHandles.push_back(index);
 		}
 		ptr++;
 	}
 	sort(selectedHandles.begin(), selectedHandles.end());
-
 }

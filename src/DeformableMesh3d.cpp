@@ -12,12 +12,13 @@
 namespace meshtalent {
 
 template <typename FUN>
-void DeformableMesh3d::specifyposArr(FUN fun)
+void DeformableMesh3d::specifyposArr(const std::vector<int>& selectedHandles, FUN fun)
 {
-	std::set<InterMesh::VertexHandle>& svIDs = pMesh->property(selectedVertices);
-	//sort(svIDs.begin(), svIDs.end());
-
 #ifndef NDEBUG
+	// assert selectedHandles is sorted.
+	for (int i = 0; i < static_cast<int>(selectedHandles.size() - 1); ++i) {
+		assert(selectedHandles[i] < selectedHandles[i+1]);
+	}
 	// assert handleIDs is sorted.
 	for (int i = 0; i < static_cast<int>(handleIDs.size() - 1); ++i) { 
 		assert(handleIDs[i] < handleIDs[i+1]);
@@ -27,13 +28,16 @@ void DeformableMesh3d::specifyposArr(FUN fun)
 	specifiedposArr.clear();
 	int handleIDsize = static_cast<int>(handleIDs.size());
 	specifiedposArr.reserve(handleIDsize);
+
 	for (int i = 0; i < handleIDsize; ++i) {
 		InterMesh::Point& p = pMesh->point(handleIDs[i]); // get one handle.
 		P3d pnow(p[0], p[1], p[2]);
-		if (svIDs.find(handleIDs[i]) != svIDs.end()) {
-			pnow = fun(pnow);
-		}
 		specifiedposArr.push_back(pnow);
+	}
+
+	for (int i = 0; i < selectedHandles.size(); ++i) {
+		int index = selectedHandles[i];
+		specifiedposArr[index] = fun(specifiedposArr[index]);
 	}
 }
 
@@ -115,22 +119,22 @@ void DeformableMesh3d::deform()
 	pGraph->updateNodesPos();
 }
 
-void DeformableMesh3d::translate(const V3d& t)
+void DeformableMesh3d::translate(const std::vector<int>& selectedHandles, const V3d& t)
 {
-	specifyposArr(translateFun(t));
+	specifyposArr(selectedHandles, translateFun(t));
 	deform();
 }
 
-void DeformableMesh3d::scale(double lamada)
+void DeformableMesh3d::scale(const std::vector<int>& selectedHandles, double lamada)
 {
 	P3d pcenter = centerOfSV();
-	specifyposArr(scaleFun(pcenter, lamada));
+	specifyposArr(selectedHandles, scaleFun(pcenter, lamada));
 	deform();
 }
 
-void DeformableMesh3d::rotate(const V3d& t, const P3d& p, double beta)
+void DeformableMesh3d::rotate(const std::vector<int>& selectedHandles, const V3d& t, const P3d& p, double beta)
 {
-	specifyposArr(rotateFun(p, t.normalize(), beta));
+	specifyposArr(selectedHandles, rotateFun(p, t.normalize(), beta));
 	deform();
 }
 
