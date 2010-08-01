@@ -2,12 +2,12 @@
 #include <sstream>
 #include <algorithm>
 
-#include <GL/glut.h>
-
 #include <qapplication.h>
 #include <QMouseEvent>
 
 #include "QGLViewerWidget.h"
+
+//#include <GL/glut.h>
 
 #if !defined(M_PI)
 #  define M_PI 3.1415926535897932
@@ -129,17 +129,17 @@ void QGLViewerWidget::draw_scene(int drawmode)
 	switch (drawmode) {
 	case WIRE_FRAME:
 		glDisable(GL_LIGHTING);
-		glutWireTeapot(0.5);
+		//glutWireTeapot(0.5);
 		break;
 	case SOLID_FLAT:
 		glEnable(GL_LIGHTING);
 		glShadeModel(GL_FLAT);
-		glutSolidTeapot(0.5);
+		//glutSolidTeapot(0.5);
 		break;
 	case SOLID_SMOOTH:
 		glEnable(GL_LIGHTING);
 		glShadeModel(GL_SMOOTH);
-		glutSolidTeapot(0.5);
+		//glutSolidTeapot(0.5);
 		break;
 	default:
 		break;

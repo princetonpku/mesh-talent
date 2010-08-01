@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
-#include <GL/glut.h>
+//#include <GL/glut.h>
 
 #include "QGLViewerWidget.h"
 #include "DeformableMesh3d.h"
