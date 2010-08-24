@@ -351,9 +351,9 @@ void QGLViewerWidget::view_all()
 
 void QGLViewerWidget::set_scene_pos(const Vec3d& _cog, float _radius)
 {
-  center_ = _cog;
-  radius_ = _radius;
+	center_ = _cog;
+	radius_ = _radius;
 
-  update_projection_matrix();
-  view_all();
+	update_projection_matrix();
+	view_all();
 }
