@@ -40,6 +40,7 @@ private:
 
 	// Edit Actions.
 	QAction* genGraphAction;
+	QAction* updateMeshAction;
 
 	// View Actions.
 	QAction* wireFrameAction;

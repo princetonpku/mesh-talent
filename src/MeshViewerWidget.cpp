@@ -28,6 +28,33 @@ MeshViewerWidget::~MeshViewerWidget()
 	delete pdgraph_;
 }
 
+void MeshViewerWidget::updateMeshCenter()
+{
+	typedef InterMesh::Point Point;
+	using OpenMesh::Vec3d;
+	Vec3d bbMin, bbMax;
+
+	InterMesh::VertexIter vIt = mesh_.vertices_begin();
+	InterMesh::VertexIter vEnd = mesh_.vertices_end();
+	bbMin = bbMax = OpenMesh::vector_cast<Vec3d>(mesh_.point(vIt));
+
+	size_t count = 0;
+	for (; vIt != vEnd; ++vIt, ++count) {
+		bbMin.minimize(OpenMesh::vector_cast<Vec3d>(mesh_.point(vIt)));
+		bbMax.maximize(OpenMesh::vector_cast<Vec3d>(mesh_.point(vIt)));
+	}
+
+	// set center and radius and box's radius.
+	set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
+	box_radius_ = 0.005 * (bbMin-bbMax).norm();
+}
+
+void MeshViewerWidget::updateMeshNormals()
+{
+	mesh_.update_face_normals();
+	mesh_.update_vertex_normals();
+}
+
 bool MeshViewerWidget::openMesh(const char* filename)
 {
 	mesh_.request_face_normals();
@@ -36,9 +63,6 @@ bool MeshViewerWidget::openMesh(const char* filename)
 	mesh_.request_vertex_colors();
 
 	if (OpenMesh::IO::read_mesh(mesh_, filename)) {
-		
-		mesh_.update_face_normals();
-		mesh_.update_vertex_normals();
 
 		InterMesh::VertexIter vIt = mesh_.vertices_begin();
 		InterMesh::VertexIter vEnd = mesh_.vertices_end();
@@ -46,24 +70,7 @@ bool MeshViewerWidget::openMesh(const char* filename)
 			mesh_.set_color(vIt, InterMesh::Color(127, 127, 0));
 		}
 
-		// bounding box
-		typedef InterMesh::Point Point;
-		using OpenMesh::Vec3d;
-		
-		Vec3d bbMin, bbMax;
-		
-		vIt = mesh_.vertices_begin();
-		bbMin = bbMax = OpenMesh::vector_cast<Vec3d>(mesh_.point(vIt));
-		
-		size_t count = 0;
-		for (; vIt != vEnd; ++vIt, ++count) {
-			bbMin.minimize(OpenMesh::vector_cast<Vec3d>(mesh_.point(vIt)));
-			bbMax.maximize(OpenMesh::vector_cast<Vec3d>(mesh_.point(vIt)));
-		}
-    
-		// set center and radius and box's radius.
-		set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
-		box_radius_ = 0.005 * (bbMin-bbMax).norm();
+		update_mesh();
 
 		// set deformable mesh.
 		pdmesh_ = new DeformableMesh3d(&mesh_);
@@ -78,13 +85,28 @@ bool MeshViewerWidget::openMesh(const char* filename)
 
 void MeshViewerWidget::open_mesh_gui(QString fname)
 {
-	if ( fname.isEmpty() || !openMesh(fname.toLocal8Bit()) )
-	{
+	if (fname.isEmpty() || !openMesh(fname.toLocal8Bit())) {
 		QString msg = "Cannot read mesh from file:\n '";
 		msg += fname;
 		msg += "'";
-		QMessageBox::critical( NULL, windowTitle(), msg);
+		QMessageBox::critical(NULL, windowTitle(), msg);
 	}
+}
+
+void MeshViewerWidget::save_mesh_gui(QString fname)
+{
+	if (fname.isEmpty() || !saveMesh(fname.toLocal8Bit())) {
+		QString msg = "Cannot read mesh from file:\n '";
+		msg += fname;
+		msg += "'";
+		QMessageBox::critical(NULL, windowTitle(), msg);
+	}
+	
+}
+
+bool MeshViewerWidget::saveMesh(const char* filename)
+{
+	return OpenMesh::IO::write_mesh(mesh_, filename);
 }
 
 void MeshViewerWidget::draw_scene(int drawmode)
@@ -403,6 +425,7 @@ void MeshViewerWidget::gen_graph_query()
 				20);
 	}
 }
+
 
 void MeshViewerWidget::processMousePickPress(QMouseEvent* _event)
 {

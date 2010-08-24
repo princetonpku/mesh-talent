@@ -25,7 +25,7 @@ void MainWindow::createActions()
     saveAction->setIcon(QIcon("../images/save.png"));
     saveAction->setShortcut(QKeySequence::Save);
     saveAction->setStatusTip(tr("Save the mesh to file"));
-    connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+    connect(saveAction, SIGNAL(triggered()), viewer, SLOT(save_mesh_query()));
 
     saveAsAction = new QAction(tr("Save &As..."), this);
     saveAsAction->setStatusTip(tr("Save the mesh under a new name"));
@@ -111,6 +111,11 @@ void MainWindow::createActions()
 	genGraphAction->setIcon(QIcon("../image/deformationgraph.png"));
 	genGraphAction->setStatusTip(tr("Generate the deformation graph"));
 	connect(genGraphAction, SIGNAL(triggered()), viewer, SLOT(gen_graph_query()));
+
+	updateMeshAction = new QAction(tr("&Update Mesh"), this);
+	updateMeshAction->setIcon(QIcon("../image/updatemesh.png"));
+	updateMeshAction->setStatusTip(tr("Update the normals and the center of the mesh"));
+	connect(updateMeshAction, SIGNAL(triggered()), viewer, SLOT(update_mesh()));
 }
 
 void MainWindow::createMenus()
@@ -124,6 +129,8 @@ void MainWindow::createMenus()
 
 	editMenu = menuBar()->addMenu(tr("&Edit"));
 	editMenu->addAction(genGraphAction);
+	editMenu->addSeparator();
+	editMenu->addAction(updateMeshAction);
 
 	viewMenu = menuBar()->addMenu(tr("&View"));
 	viewMenu->addAction(wireFrameAction);
