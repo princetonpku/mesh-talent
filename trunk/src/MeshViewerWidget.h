@@ -22,6 +22,8 @@ public:
 public:
 	void open_mesh_gui(QString fname);
 	bool openMesh(const char* filename);
+	void save_mesh_gui(QString fname);
+	bool saveMesh(const char* filename);
 	InterMesh& mesh() { return mesh_; };
 	const InterMesh& mesh() const { return mesh_; };
 	bool graphGened() const { return !(pdgraph_ == NULL); }
@@ -30,12 +32,30 @@ public slots:
         QString fileName = QFileDialog::getOpenFileName(this,
             tr("Open mesh file"),
             tr("../models/"),
-            tr( "OFF Files (*.off);;"
+            tr("OFF Files (*.off);;"
 			"OBJ Files (*.obj);;"
             "STL Files (*.stl);;"
             "All Files (*)"));
         if (!fileName.isEmpty())
             open_mesh_gui(fileName);
+	}
+	void save_mesh_query() {
+		QString fileName = QFileDialog::getSaveFileName(this,
+			tr("Save mesh file"),
+			tr("../models/untitled.off"),
+			tr("OFF Files (*.off);;"
+			"OBJ Files (*.obj);;"
+			"STL Files (*.stl);;"
+			"All Files (*)"));
+		if (!fileName.isEmpty()) {
+			save_mesh_gui(fileName);
+		}
+	}
+	void update_mesh() {
+		if (mesh_.n_vertices() != 0) {
+			updateMeshNormals();
+			updateMeshCenter();
+		}
 	}
 	void gen_graph_query();
 public:
@@ -45,6 +65,8 @@ public:
 	}
 private:
 	void genGraph();
+	void updateMeshCenter(); // used by update_mesh().
+	void updateMeshNormals(); // used by update_mesh().
 protected:
 	virtual void draw_scene(int drawmode);
 	virtual void mousePressEvent(QMouseEvent* _event);
