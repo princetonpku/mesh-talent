@@ -236,6 +236,10 @@ void MeshViewerWidget::draw_mesh_pointset() const
 		glVertex3dv(&mesh_.point(vIt)[0]);
 		glEnd();
 	}
+	if (mouse_mode() == MOUSE_PICK) {
+		glLoadName(mesh_.n_vertices());
+	}
+	
 }
 
 void MeshViewerWidget::draw_graph() const 
@@ -445,6 +449,8 @@ void MeshViewerWidget::processMousePickRelease(QMouseEvent* _event)
 	GLint hits;
 	GLint viewport[4];
 
+	GLdouble x1, y1, x2, y2, detX, detY, cenX, cenY;
+
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glSelectBuffer(mesh_.n_vertices(), &selectBuf[0]);
 	glRenderMode(GL_SELECT);
@@ -460,14 +466,16 @@ void MeshViewerWidget::processMousePickRelease(QMouseEvent* _event)
 		gluPickMatrix((GLdouble)(_event->x()), (GLdouble)(viewport[3]-_event->y()), 5.0, 5.0, viewport);
 	} else { // rect select.
 		// compute the pick rect.
-		GLdouble x1 = (GLdouble)(_event->x());
-		GLdouble y1 = (GLdouble)(viewport[3]-(_event->y()));
-		GLdouble x2 = (GLdouble)(pick_press_point_.x());
-		GLdouble y2 = (GLdouble)(viewport[3]-(pick_press_point_.y()));
-		GLdouble detX = fabs(x1-x2);
-		GLdouble detY = fabs(y1-y2);
-		GLdouble cenX = (x1+x2)/2;
-		GLdouble cenY = (y1+y2)/2;
+		x1 = (GLdouble)(_event->x());
+		y1 = (GLdouble)(viewport[3]-(_event->y()));
+		x2 = (GLdouble)(pick_press_point_.x());
+		y2 = (GLdouble)(viewport[3]-(pick_press_point_.y()));
+		detX = fabs(x1-x2);
+		if (detX == 0.0) { detX = 1.0; } // we should not call gluPickMatrix() with a zero-like detX, also detY.
+		detY = fabs(y1-y2);
+		if (detY == 0.0) { detY = 1.0; }
+		cenX = (x1+x2)/2;
+		cenY = (y1+y2)/2;
 		gluPickMatrix(cenX, cenY, detX, detY, viewport);
 	}
 	glMultMatrixd(projection_matrix());
@@ -478,6 +486,7 @@ void MeshViewerWidget::processMousePickRelease(QMouseEvent* _event)
 	glFlush();
 
 	hits = glRenderMode(GL_RENDER);
+	
 	processPickHits(hits, &selectBuf[0], _event->modifiers() == ControlModifier);
 	updateGL();
 }
