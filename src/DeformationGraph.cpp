@@ -74,15 +74,15 @@ class WithinCircle {
 public:
 	typedef DeformationGraph::P3d P3d;
 	WithinCircle(const P3d& p, double r) : pcenter(p), rsquare(r*r) {}
-	bool operator() (const P3d& pnow) {
-		return (pnow - pcenter).magsqr() < rsquare;
+	bool operator() (const DeformationGraph::PointWithID& pointwithid) {
+		return (pointwithid.p - pcenter).magsqr() < rsquare;
 	}
 private:
 	P3d pcenter;
 	double rsquare;
 };
 
-void DeformationGraph::GenerateDensePointSet(std::list<P3d>& pointcoll, double delta)
+void DeformationGraph::GenerateDensePointSet(std::list<PointWithID>& pointcoll, double delta)
 {
 #ifdef DEBUGTRACE
 	meshtalent::DebugTrace dt("./sample.log");
@@ -99,7 +99,7 @@ void DeformationGraph::GenerateDensePointSet(std::list<P3d>& pointcoll, double d
 	for (v_it = pMesh->vertices_begin(); v_it != v_end; ++v_it) {
 		InterMesh::Point& p = pMesh->point(v_it);
 		P3d p3d(p[0], p[1], p[2]);
-		pointcoll.push_back(p3d);
+		pointcoll.push_back(PointWithID(p3d, PointWithID::VERTEX, v_it.handle().idx()));
 	}
 #ifdef DEBUGTRACE
 	dt.Trace("There %d vertex_points sampled.\n", vertexnum);
@@ -123,7 +123,7 @@ void DeformationGraph::GenerateDensePointSet(std::list<P3d>& pointcoll, double d
 		P3d p3dnow = p3dfrom;
 		for (int j = 0; j < times; ++j) {
 			p3dnow += deltaV;
-			pointcoll.push_back(p3dnow);
+			pointcoll.push_back(PointWithID(p3dnow, PointWithID::EDGE, e_it.handle().idx()));
 		}
 		epcount += (times < 0 ? 0 : times);
 	}
@@ -159,7 +159,7 @@ void DeformationGraph::GenerateDensePointSet(std::list<P3d>& pointcoll, double d
 				continue;
 			}
 			P3d tp3d = trivertices[0] + (v1 * lamada1 + v2 * lamada2);
-			pointcoll.push_back(tp3d);
+			pointcoll.push_back(PointWithID(tp3d, PointWithID::FACE, f_it.handle().idx()));
 			--samplenum;
 		} // end of while.
 	} // end of for.
@@ -169,9 +169,49 @@ void DeformationGraph::GenerateDensePointSet(std::list<P3d>& pointcoll, double d
 #endif
 }
 
+void DeformationGraph::moveFromEdgeToVertex(GraphNode* pnode, const PointWithID& pwid)
+{
+	typedef DeformableMesh3d::InterMesh InterMesh;
+	InterMesh* pMesh = dmesh.pMesh;
+
+	InterMesh::EdgeHandle eh(pwid.id);
+	InterMesh::HalfedgeHandle heh = pMesh->halfedge_handle(eh, 0); // always select the first edge, but if it's a boundary??
+	InterMesh::VertexHandle phfrom = pMesh->from_vertex_handle(heh);
+	InterMesh::VertexHandle phto = pMesh->to_vertex_handle(heh);
+	InterMesh::Point pf = pMesh->point(phfrom);
+	InterMesh::Point pt = pMesh->point(phto);
+	P3d p3dfrom(pf[0], pf[1], pf[2]);
+	P3d p3dto(pt[0], pt[1], pt[2]);
+	double disToFrom = (p3dfrom - pwid.p).mag();
+	double disToTo = (p3dto - pwid.p).mag();
+
+	pnode->vertexID = disToFrom < disToTo ? phfrom.idx() : phto.idx();
+	pnode->g = disToFrom < disToTo ? p3dfrom : p3dto;
+}
+
+void DeformationGraph::moveFromFaceToVertex(GraphNode* pnode, const PointWithID& pwid)
+{
+	typedef DeformableMesh3d::InterMesh InterMesh;
+	InterMesh* pMesh = dmesh.pMesh;
+
+	InterMesh::FaceHandle fh(pwid.id);
+	InterMesh::FaceVertexIter fv_it(pMesh->fv_iter(fh));
+	double minDis = 10e8;
+	for (; fv_it; ++fv_it) {
+		InterMesh::Point& p = pMesh->point(fv_it);
+		P3d p3d = P3d(p[0], p[1], p[2]);
+		double d = (p3d - pwid.p).mag();
+		if (d < minDis) {
+			pnode->g = p3d;
+			pnode->vertexID = fv_it.handle().idx();
+			minDis = d;
+		}
+	}
+}
+
 void DeformationGraph::GenerateRandomNodes()
 {
-	std::list<P3d> pointcoll;
+	std::list<PointWithID> pointcoll;
 	// compute the sampledelta.
 	const double samplelamada = 0.62; // this is a magic num, should not be modified.
 	double surfacearea = dmesh.surfaceArea();
@@ -200,19 +240,33 @@ void DeformationGraph::GenerateRandomNodes()
 #endif
 		// randomly select a point.
 		int ranindex = bigrand() % static_cast<long>(pointcoll.size());
-		std::list<P3d>::iterator it = pointcoll.begin();
+		std::list<PointWithID>::iterator it = pointcoll.begin();
 		advance(it, ranindex);
 		// add to Graph.
-		GraphNode tnode(*it, i);
+		GraphNode tnode(it->p, i);
+		switch (it->from) {
+		case PointWithID::VERTEX:
+			tnode.vertexID = it->id;
+			break;
+		case PointWithID::EDGE:
+			moveFromEdgeToVertex(&tnode, *it);
+			break;
+		case PointWithID::FACE:
+			moveFromFaceToVertex(&tnode, *it);
+			break;
+		default:
+			assert(false);
+			break;
+		}
 		edges.push_back(make_pair(tnode, std::vector<int>()));
-		pointcoll.remove_if(WithinCircle(*it, deleteradius)); // remove nearby points.
+		pointcoll.remove_if(WithinCircle(it->p, deleteradius)); // remove nearby points.
 	}
 
 #ifndef NDEBUG
 	// assert the distance between each two Graph nodes is larger than radius.
 	for (int i = 0; i < static_cast<int>(edges.size()); ++i) {
 		for (int j = i + 1; j < static_cast<int>(edges.size()); ++j) {
-			assert((edges[i].first.g - edges[j].first.g).mag() >= deleteradius);
+			//assert((edges[i].first.g - edges[j].first.g).mag() >= deleteradius);
 		}
 	}
 #endif

@@ -7,10 +7,11 @@
 #include <algorithm>
 #include <ostream>
 #include <istream>
-
+// --------------------- math utility
 #include "math/vector3d.h"
 #include "math/matrix3d.h"
 #include "math/point3d.h"
+// ---------------------
 
 namespace meshtalent {
 
@@ -53,21 +54,34 @@ public:
 		}
 		return os;
 	}
-private:
-	void BuildGraph();
-	void GenerateRandomNodes();
-	void GenerateEdges();
-	void GenerateDensePointSet(std::list<P3d>& pointcoll, double delta);// sample points on the surface.
+public:
+	struct PointWithID {
+		P3d p;
+		enum From { VERTEX, EDGE, FACE };
+		enum From from;
+		int id;
+		PointWithID(const P3d& _p, enum From _from, int _id) : p(_p), from(_from), id(_id) {}
+	};
 public:
 	struct GraphNode {
-		GraphNode(const P3d& _g, int _index) : g(_g), index(_index) {}
+		GraphNode(const P3d& _g, int _index, int _vertexID = -1) : g(_g), index(_index), vertexID(_vertexID) {}
 		P3d g; // the space coordinate of this graph node.
 		V3d t; // the translation transformation vector.
 		M3d R; // the linear transformation matrix.
 		int index; // the index in "edges".
 		std::vector<int> vertices; // the coll of vertex whose deformation is correspond to this node.
+		int vertexID; // the id of vertex it belongs.
 	};
 	typedef std::pair<GraphNode, std::vector<int> > Link; // node and adjacent edges
+private:
+	void BuildGraph();
+	// called by GenerateRandomNodes().
+	void moveFromEdgeToVertex(GraphNode* pnode, const PointWithID& pwid);
+	void moveFromFaceToVertex(GraphNode* pnode, const PointWithID& pwid);
+	void GenerateRandomNodes();
+	void GenerateEdges();
+	void GenerateDensePointSet(std::list<PointWithID>& pointcoll, double delta);// sample points on the surface.
+
 private:
 	DeformableMesh3d& dmesh;
 	const int nodenum; // the num of nodes of this graph
