@@ -64,6 +64,13 @@ void MainWindow::createActions()
 	pointSetAction->setChecked(false);
 	connect(pointSetAction, SIGNAL(triggered()), this, SLOT(pointSetShow()));
 
+	voronoiDiagramAction = new QAction(tr("&VoronoiDiagram"), this);
+	voronoiDiagramAction->setIcon(QIcon("../images/voronoidiagram.png"));
+	voronoiDiagramAction->setStatusTip(tr("Using voronoidiagram showing method"));
+	voronoiDiagramAction->setCheckable(true);
+	voronoiDiagramAction->setChecked(false);
+	connect(voronoiDiagramAction, SIGNAL(triggered()), this, SLOT(voronoiDiagramShow()));
+
 	showGraphAction = new QAction(tr("Show &Graph"), this);
 	showGraphAction->setIcon(QIcon("../images/showgraph.png"));
 	showGraphAction->setStatusTip(tr("Show the deformation graph"));
@@ -137,6 +144,7 @@ void MainWindow::createMenus()
 	viewMenu->addAction(solidFlatAction);
 	viewMenu->addAction(solidSmoothAction);
 	viewMenu->addAction(pointSetAction);
+	viewMenu->addAction(voronoiDiagramAction);
 	viewMenu->addAction(showGraphAction);
 	viewMenu->addSeparator();
 	viewMenu->addAction(viewAllAction);
@@ -155,6 +163,7 @@ void MainWindow::createToolBars()
 	viewToolBar->addAction(solidFlatAction);
 	viewToolBar->addAction(solidSmoothAction);
 	viewToolBar->addAction(pointSetAction);
+	viewToolBar->addAction(voronoiDiagramAction);
 	viewToolBar->addAction(showGraphAction);
 	viewToolBar->addAction(viewAllAction);
 
@@ -212,6 +221,13 @@ void MainWindow::pointSetShow()
 	setAllViewActionChecked(false);
 	pointSetAction->setChecked(true);
 	viewer->setDrawMode(QGLViewerWidget::POINT_SET);
+}
+
+void MainWindow::voronoiDiagramShow()
+{
+	setAllViewActionChecked(false);
+	voronoiDiagramAction->setChecked(true);
+	viewer->setDrawMode(QGLViewerWidget::VORONOI_DIAGRAM);
 }
 
 void MainWindow::graphShow()
@@ -289,5 +305,6 @@ void MainWindow::setAllViewActionChecked(bool b)
 	solidFlatAction->setChecked(b);
 	solidSmoothAction->setChecked(b);
 	pointSetAction->setChecked(b);
+	voronoiDiagramAction->setChecked(b);
 	showGraphAction->setChecked(b);
 }

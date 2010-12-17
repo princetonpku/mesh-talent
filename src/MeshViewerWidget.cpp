@@ -143,6 +143,11 @@ void MeshViewerWidget::draw_scene(int drawmode)
 		draw_mesh_pointset();
 		draw_select_boxes();
 		break;
+	case VORONOI_DIAGRAM:
+		glDisable(GL_LIGHTING);
+		glShadeModel(GL_FLAT);
+		draw_voronoidiagram();
+		break;
 	case DRAW_GRAPH:
 		glDisable(GL_LIGHTING);
 		glShadeModel(GL_FLAT);
@@ -226,6 +231,7 @@ void MeshViewerWidget::draw_mesh_pointset() const
 {
 	InterMesh::ConstVertexIter vIt(mesh_.vertices_begin()),
 							vEnd(mesh_.vertices_end());
+
 	for (int i = 0; vIt != vEnd; ++i, ++vIt) {
 		if (mouse_mode() == MOUSE_PICK) {
 			glLoadName(i);
@@ -240,6 +246,38 @@ void MeshViewerWidget::draw_mesh_pointset() const
 		glLoadName(mesh_.n_vertices());
 	}
 	
+}
+void MeshViewerWidget::draw_voronoidiagram() const
+{
+	InterMesh::ConstFaceIter fIt(mesh_.faces_begin()),
+							fEnd(mesh_.faces_end());
+	for (; fIt != fEnd; ++fIt) {
+		InterMesh::Point endpoints[3];
+		InterMesh::Point midpoints[3];
+		InterMesh::Point center;
+		InterMesh::Color colors[3];
+		//assert((*f_it).is_triangle());
+		InterMesh::ConstFaceVertexIter fv_it(mesh_, fIt.handle());
+		int j = 0;
+		for (; fv_it; ++fv_it, ++j) {
+			endpoints[j] = mesh_.point(fv_it);
+			colors[j] = mesh_.color(fv_it);
+		}
+		for (j = 0; j < 3; ++j) {
+			midpoints[j] = (endpoints[(j+1)%3] + endpoints[(j+2)%3]) / 2;
+		}
+		center = (endpoints[0] + endpoints[1] + endpoints[2]) / 3;
+
+		for (j = 0; j < 3; ++j) {
+			glColor3bv((const GLbyte*)&colors[j]);
+			glBegin(GL_QUADS);
+				glVertex3dv(&endpoints[j][0]);
+				glVertex3dv(&midpoints[(j+1)%3][0]);
+				glVertex3dv(&center[0]);
+				glVertex3dv(&midpoints[(j+2)%3][0]);
+			glEnd();
+		}
+	}
 }
 
 void MeshViewerWidget::draw_graph() const 

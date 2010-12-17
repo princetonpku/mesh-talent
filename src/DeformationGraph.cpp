@@ -295,19 +295,19 @@ void DeformationGraph::GenerateEdges()
 {
 	dmesh.InitDatas(this);
 	assert(nodenum == static_cast<int>(edges.size()));
+#ifndef NDEBUG
 	// assert sorted.
 	for (int i = 0; i < nodenum; ++i) {
 		std::vector<int>& vs = edges[i].first.vertices;
-#ifndef NDEBUG
 		for (int j = 0; j < static_cast<int>(vs.size()) - 1; ++j) {
 			assert(vs[j] <= vs[j+1]);
 		}
-#endif
 	}
 	// assert there is no edges information now.
 	for (int i = 0; i < nodenum; ++i) {
 		assert(edges[i].second.size() == 0);
 	}
+#endif
 	// for each two nodes, check if they has impact on the same vertex.
 	for (int i = 0; i < nodenum; ++i) {
 		for (int j = i + 1; j < nodenum; ++j) {

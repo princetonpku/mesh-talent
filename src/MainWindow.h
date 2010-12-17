@@ -23,6 +23,7 @@ private slots:
 	void solidFlatShow();
 	void solidSmoothShow();
 	void pointSetShow();
+	void voronoiDiagramShow();
 	void graphShow();
 	void viewAll();
 
@@ -47,6 +48,7 @@ private:
 	QAction* solidFlatAction;
 	QAction* solidSmoothAction;
 	QAction* pointSetAction;
+	QAction* voronoiDiagramAction;
 	QAction* showGraphAction;
 	QAction* viewAllAction;
 

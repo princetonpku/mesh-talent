@@ -33,7 +33,7 @@ public:
 	float fovy() const { return 45.0f; }
 public:
 	// draw modes.
-	enum { WIRE_FRAME=0, SOLID_FLAT, SOLID_SMOOTH, POINT_SET, N_DRAW_MODES };
+	enum { WIRE_FRAME=0, SOLID_FLAT, SOLID_SMOOTH, POINT_SET, VORONOI_DIAGRAM, N_DRAW_MODES };
 	void setDrawMode(int dm) { draw_mode_ = dm; updateGL(); }
 	int draw_mode() const { return draw_mode_; }
 public:

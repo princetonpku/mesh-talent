@@ -35,15 +35,10 @@ public:
 	typedef OpenMesh::TriMesh_ArrayKernelT<InterTraits> InterMesh;
 public:
 	// constructor.
-	DeformableMesh3d(InterMesh* _pMesh) : pMesh(_pMesh), pGraph(NULL) {
-		pMesh->add_property(selectedVertices);
-		pMesh->add_property(nearnodesArr);
-	}
+	DeformableMesh3d(InterMesh* _pMesh);
 	// destructor.
-	~DeformableMesh3d() { 
-		pMesh->remove_property(nearnodesArr); 
-		pMesh->remove_property(selectedVertices);
-	}
+	~DeformableMesh3d();
+
 	InterMesh* getpMesh() const {
 		return pMesh;
 	}
@@ -159,6 +154,19 @@ public:
 	const std::set<InterMesh::VertexHandle>& getSVSet() const {
 		return pMesh->property(selectedVertices);
 	}
+
+// for computing voronoi of the mesh.
+public:
+	struct VoronoiInfo {
+		double dis;
+		InterMesh::VertexHandle handleRoot;
+		VoronoiInfo(double _dis = 10e8, InterMesh::VertexHandle _handleRoot = InterMesh::VertexHandle()) : dis(_dis), handleRoot(_handleRoot) {}
+	};
+private:
+	OpenMesh::VPropHandleT<VoronoiInfo> voroInfo;
+	OpenMesh::HPropHandleT<double> halfEdgeDis;
+private:
+	void genVoronoi(); // called by InitDatas().
 };
 
 } // end of namespace meshtalent
