@@ -79,6 +79,7 @@ private:
 	void draw_mesh_solidflat() const;
 	void draw_mesh_solidsmooth() const;
 	void draw_mesh_pointset() const;
+	void draw_voronoidiagram() const;
 	void draw_graph() const;
 	void drawSelectBox(const OpenMesh::Vec3d& center, double radius);
 	void draw_select_boxes();
