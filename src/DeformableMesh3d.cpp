@@ -49,6 +49,7 @@ DeformableMesh3d::DeformableMesh3d(InterMesh* _pMesh) : pMesh(_pMesh), pGraph(NU
 	// for voronoi.
 	pMesh->add_property(voroInfo);
 	pMesh->add_property(halfEdgeDis);
+	pMesh->add_property(overlapped_voroInfo);
 	// compute halfEdgeDis.
 	InterMesh::HalfedgeIter he_it(pMesh->halfedges_begin()), he_end(pMesh->halfedges_end());
 	for (; he_it != he_end; ++he_it) {
@@ -67,6 +68,7 @@ DeformableMesh3d::DeformableMesh3d(InterMesh* _pMesh) : pMesh(_pMesh), pGraph(NU
 DeformableMesh3d::~DeformableMesh3d() 
 { 
 	// for voronoi.
+	pMesh->remove_property(overlapped_voroInfo);
 	pMesh->remove_property(halfEdgeDis);
 	pMesh->remove_property(voroInfo);
 
@@ -209,8 +211,47 @@ void DeformableMesh3d::InitDatas(DeformationGraph* _pGraph)
 {
 	setGraph(_pGraph);
 
-	genVoronoi();
+	//genVoronoi();
+	genOverlappedVoronoi();
 
+	// init the map from vertexID to nodeID.
+	std::map<int, int> nodesmap;
+	for (int i = 0; i < pGraph->edges.size(); ++i) {
+		nodesmap.insert(std::make_pair(pGraph->edges[i].first.vertexID, i));
+	}
+
+	// init nearnodes of every vertex.
+	InterMesh::VertexIter v_it, v_end(pMesh->vertices_end());
+	for (v_it = pMesh->vertices_begin(); v_it != v_end; ++v_it) {
+		const OverlappedVoronoiInfo& OLVINow = pMesh->property(overlapped_voroInfo, v_it.handle());
+		assert(OLVINow.indexNow == OverlappedVoronoiInfo::nearNodesNum);
+
+		double maxdist = OLVINow.vis[OLVINow.indexNow-1].dis;
+		std::vector<IndexWeightPair>& nearnodesnow = pMesh->property(nearnodesArr, v_it);
+
+		for (int i = 0; i < OverlappedVoronoiInfo::nearNodesNum - 1; ++i) {
+			double d = OLVINow.vis[i].dis;
+			double w = (1 - d / maxdist) * (1 - d / maxdist);
+			int indexOfNode = nodesmap[OLVINow.vis[i].handleRoot.idx()];
+			nearnodesnow.push_back(std::make_pair(indexOfNode, w));
+			// put this vertex index in the node.
+			pGraph->edges[indexOfNode].first.vertices.push_back(v_it.handle().idx());
+
+		}
+		sort(nearnodesnow.begin(), nearnodesnow.end(), CmpFirst());
+		// normalize weight in nearnodesArr[k].
+		double dsum = 0.0;
+		assert(OverlappedVoronoiInfo::nearNodesNum - 1 == static_cast<int>(nearnodesnow.size()));
+		for (int i = 0; i < OverlappedVoronoiInfo::nearNodesNum - 1; ++i) {
+			dsum += nearnodesnow[i].second;
+		}
+		for (int i = 0; i < OverlappedVoronoiInfo::nearNodesNum - 1; ++i) {
+			nearnodesnow[i].second /= dsum;
+		}
+	}
+
+
+/*
 	// copy all the node's coordinate into "nodecordcoll".
 	int rnumplusone = pGraph->relatenum + 1;
 	int nodenum = pGraph->nodenum;
@@ -258,6 +299,7 @@ void DeformableMesh3d::InitDatas(DeformationGraph* _pGraph)
 			nearnodesnow[i].second /= dsum;
 		}
 	} // end of for 
+*/
 }
 
 void DeformableMesh3d::gethandles()
@@ -410,7 +452,169 @@ void DeformableMesh3d::genVoronoi()
 		int idx = viNow.handleRoot.idx();
 		pMesh->set_color(v_it, InterMesh::Color(idx, idx*idx, 255-idx));
 	}
-
 }
+
+int DeformableMesh3d::OverlappedVoronoiInfo::nearNodesNum = 4;
+
+void DeformableMesh3d::genOverlappedVoronoi()
+{
+	// init all vertex's overlapped voronoi information.
+	const int nearNodesNum = pGraph->relatenum + 1;
+	OverlappedVoronoiInfo::setNearNodesNum(nearNodesNum);
+	InterMesh::VertexIter v_it = pMesh->vertices_begin(), v_end = pMesh->vertices_end();
+	for (; v_it != v_end; ++v_it) {
+		pMesh->property(overlapped_voroInfo, v_it.handle()) = OverlappedVoronoiInfo();
+	}
+	// init all node's overlapped voronoi information.
+	int nodeSize = pGraph->edges.size();
+	for (int i = 0; i < nodeSize; ++i) {
+		InterMesh::VertexHandle vh(pGraph->edges[i].first.vertexID);
+		OverlappedVoronoiInfo& olviNow = pMesh->property(overlapped_voroInfo, vh);
+		olviNow.vis[0] = VoronoiInfo(0.0, vh);
+	}
+
+	// add a property to vertices to tell this vertex's pos in PQ.
+	OpenMesh::VPropHandleT<int> posInPQ;
+	pMesh->add_property(posInPQ);
+
+	// init the PQ, the same with voronoi.
+	std::vector<ElementInPQ> PQ;
+	PQ.reserve(pMesh->n_vertices() + 1);
+	PQ.push_back(ElementInPQ());
+	for (int i = 0; i < nodeSize; ++i) {
+		InterMesh::VertexHandle vh(pGraph->edges[i].first.vertexID);
+		pMesh->property(posInPQ, vh) = PQ.size();
+		PQ.push_back(ElementInPQ(vh, 0.0));
+	}
+	for (v_it = pMesh->vertices_begin(); v_it != v_end; ++v_it) {
+		if (pMesh->property(overlapped_voroInfo, v_it.handle()).vis[0].dis != 0.0) { // it is not a node vertex.
+			pMesh->property(posInPQ, v_it.handle()) = PQ.size();
+			PQ.push_back(ElementInPQ(v_it.handle()));
+		}
+	}
+
+	// dijkstra.
+	while (PQ.size() > 1) {
+		// extract min.
+		ElementInPQ e = PQ[1];
+		PQ[1] = PQ.back();
+		pMesh->property(posInPQ, PQ[1].vh) = 1;
+		PQ.pop_back();
+		int index = 1;
+		int indexChild = index * 2;
+		while (indexChild < PQ.size()) {
+			if (indexChild + 1 < PQ.size() && PQ[indexChild+1].d < PQ[indexChild].d) { indexChild++; }
+			if (PQ[index].d <= PQ[indexChild].d) { break; }
+			// swap.
+			ElementInPQ te = PQ[index];
+			PQ[index] = PQ[indexChild];
+			PQ[indexChild] = te;
+			pMesh->property(posInPQ, PQ[index].vh) = index;
+			pMesh->property(posInPQ, PQ[indexChild].vh) = indexChild;
+
+			index = indexChild;
+			indexChild = index * 2;
+		}
+
+		// relax.
+		InterMesh::VertexHandle vh = e.vh;
+		OverlappedVoronoiInfo& OLVIParent = pMesh->property(overlapped_voroInfo, vh);
+		InterMesh::VertexOHalfedgeIter voh_it(*pMesh, vh);
+		for (; voh_it; ++voh_it) {
+			double disOfEdge = pMesh->property(halfEdgeDis, voh_it.handle());
+			InterMesh::VertexHandle vhto = pMesh->to_vertex_handle(voh_it.handle());
+
+			OverlappedVoronoiInfo& OLVINow = pMesh->property(overlapped_voroInfo, vhto);
+			bool keyUpdated = overlappedVoronoiRelax(OLVIParent, OLVINow, disOfEdge);
+
+			if (keyUpdated) {
+				int indexInPQ = pMesh->property(posInPQ, vhto);
+				PQ[indexInPQ].d = OLVINow.vis[OLVINow.indexNow].dis;
+				int indexNow = indexInPQ;
+
+				while (indexNow/2 > 0 && PQ[indexNow].d < PQ[indexNow/2].d) {
+					// swap.
+					ElementInPQ te = PQ[indexNow];
+					PQ[indexNow] = PQ[indexNow/2];
+					PQ[indexNow/2] = te;
+					pMesh->property(posInPQ, PQ[indexNow].vh) = indexNow;
+					pMesh->property(posInPQ, PQ[indexNow/2].vh) = indexNow/2;
+					indexNow /= 2;
+				} // end of while.
+			} // end of if.
+		} // end of for.
+		
+		// if the times of this Element being popped is not enough, push it back to PQ.
+		if (++OLVIParent.indexNow < OverlappedVoronoiInfo::nearNodesNum) {
+			assert(e.d <= OLVIParent.vis[OLVIParent.indexNow].dis);
+			e.d = OLVIParent.vis[OLVIParent.indexNow].dis;
+			// push back and sift up.
+			PQ.push_back(e);
+			int indexNow = PQ.size() - 1;
+			while (indexNow/2 > 0 && PQ[indexNow].d < PQ[indexNow/2].d) {
+				// swap.
+				ElementInPQ te = PQ[indexNow];
+				PQ[indexNow] = PQ[indexNow/2];
+				PQ[indexNow/2] = te;
+				pMesh->property(posInPQ, PQ[indexNow].vh) = indexNow;
+				pMesh->property(posInPQ, PQ[indexNow/2].vh) = indexNow/2;
+				indexNow /= 2;
+			} // end of while.
+		} // end of if.
+		
+	} // end of while.
+
+	pMesh->remove_property(posInPQ);
+}
+bool DeformableMesh3d::overlappedVoronoiRelax(const OverlappedVoronoiInfo& OLVIParent, OverlappedVoronoiInfo& OLVINow, double disOfEdge)
+{
+	VoronoiInfo buffer[OverlappedVoronoiInfo::MAXSIZE * 2];
+	int indexInBuffer = 0;
+
+	assert(OLVIParent.indexNow < OverlappedVoronoiInfo::nearNodesNum);
+
+	if (OLVINow.indexNow >= OverlappedVoronoiInfo::nearNodesNum) { return false; }
+
+	// put parent's vi in buffer.
+	for (int i = OLVIParent.indexNow; i < OverlappedVoronoiInfo::nearNodesNum; ++i) {
+		VoronoiInfo vi = OLVIParent.vis[i];
+		bool inNowPoped = false;
+		for (int j = 0; j < OLVINow.indexNow; ++j) {
+			if (vi.handleRoot == OLVINow.vis[j].handleRoot) {
+				assert(OLVINow.vis[j].dis <= vi.dis + disOfEdge);
+				inNowPoped = true;
+				break;
+			}
+		}
+		if (!inNowPoped) { 
+			vi.dis += disOfEdge;
+			buffer[indexInBuffer++] = vi;
+	   	}
+	}
+	// put now's vi in buffer.
+	for (int i = OLVINow.indexNow; i < OverlappedVoronoiInfo::nearNodesNum; ++i) {
+		buffer[indexInBuffer++] = OLVINow.vis[i];
+	}
+	//root duplicate remove and sort.
+	std::sort(buffer, buffer + indexInBuffer, VoronoiInfo::DisCmp());
+	int indexInOLVINow = OLVINow.indexNow;
+	for (int i = 0; i < indexInBuffer; ++i) {
+		bool alreadyHasThisRoot = false;
+		for (int j = OLVINow.indexNow; j < indexInOLVINow; ++j) {
+			if (OLVINow.vis[j].handleRoot == buffer[i].handleRoot) {
+				alreadyHasThisRoot = true;
+				break;
+			}
+		}
+		if (!alreadyHasThisRoot) {
+			OLVINow.vis[indexInOLVINow++] = buffer[i];
+		}
+		if (indexInOLVINow >= OverlappedVoronoiInfo::nearNodesNum) { // has already filled all vis in OLVINow.
+			break;
+		}
+	} // end of for.
+	return true;
+}
+
 
 } // end of namespace meshtalent

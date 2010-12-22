@@ -161,12 +161,38 @@ public:
 		double dis;
 		InterMesh::VertexHandle handleRoot;
 		VoronoiInfo(double _dis = 10e8, InterMesh::VertexHandle _handleRoot = InterMesh::VertexHandle()) : dis(_dis), handleRoot(_handleRoot) {}
+		struct DisCmp {
+			bool operator() (const VoronoiInfo& lhs, const VoronoiInfo& rhs) {
+				return lhs.dis < rhs.dis;
+			}
+		};
 	};
 private:
 	OpenMesh::VPropHandleT<VoronoiInfo> voroInfo;
 	OpenMesh::HPropHandleT<double> halfEdgeDis;
 private:
 	void genVoronoi(); // called by InitDatas().
+
+// for computing overlapped voronoi.
+public:
+	struct OverlappedVoronoiInfo {
+	public:
+		static const int MAXSIZE = 8;
+	public:
+		VoronoiInfo vis[MAXSIZE]; // always ordered by it's dis, and handleRoot are unique.
+		int indexNow; // have computed out how many nearest nodes.
+		OverlappedVoronoiInfo() : indexNow(0) {}
+	public:
+		static int getNearNodesNum() { return nearNodesNum; }
+		static void setNearNodesNum(int k) { nearNodesNum = k; }
+	public:
+		static int nearNodesNum; // find nearNodesNum nearest nodes for every vertex, no more than MAXSIZE.
+	};
+private:
+	OpenMesh::VPropHandleT<OverlappedVoronoiInfo> overlapped_voroInfo;
+private:
+	void genOverlappedVoronoi();
+	bool overlappedVoronoiRelax(const OverlappedVoronoiInfo& OLVIParent, OverlappedVoronoiInfo& OLVINow, double disOfEdge);
 };
 
 } // end of namespace meshtalent
