@@ -7,7 +7,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-02l	Session.vim	/^normal! 02l$/;"	m
+025l	Session.vim	/^normal! 025l$/;"	m
 <Plug>NetrwBrowseX	Session.vim	/^nnoremap <silent> <Plug>NetrwBrowseX :call netrw#NetrwBrowseX(expand("<cWORD>"),0)$/;"	m
 <S-Insert>	Session.vim	/^map <S-Insert> <MiddleMouse>$/;"	m
 <S-Insert>	Session.vim	/^map! <S-Insert> <MiddleMouse>$/;"	m
@@ -88,6 +88,7 @@ Link	DeformationGraph.h	/^	typedef std::pair<GraphNode, std::vector<int> > Link;
 M3d	DeformableMesh3d.h	/^	typedef math::Matrix3d<double> M3d;$/;"	t	class:meshtalent::DeformableMesh3d
 M3d	DeformationGraph.h	/^	typedef math::Matrix3d<double> M3d;$/;"	t	class:meshtalent::DeformationGraph
 M3d	GaussNewtonSolver.h	/^	typedef meshtalent::math::Matrix3d<double> M3d;$/;"	t	class:meshtalent::GaussNewtonSolver
+MAXSIZE	DeformableMesh3d.h	/^		static const int MAXSIZE = 8;$/;"	m	struct:meshtalent::DeformableMesh3d::OverlappedVoronoiInfo
 MESHTALENT_GENGRAPHDIALOG_H	genGraphDialog.h	2;"	d
 MESHTALENT_MAINWINDOW_H	MainWindow.h	2;"	d
 MESHTALENT_MESHVIEWERWIDGET_H	MeshViewerWidget.h	2;"	d
@@ -115,6 +116,7 @@ N_MOUSE_MODES	QGLViewerWidget.h	/^	enum { MOUSE_ROTATE=0, MOUSE_TRANSLATE, MOUSE
 Normal	DeformableMesh3d.h	/^		typedef OpenMesh::Vec3d Normal;$/;"	t	struct:meshtalent::DeformableMesh3d::InterTraits
 OBJECTS	Makefile	/^OBJECTS       = DeformableMesh3d.o \\$/;"	m
 OBJECTS_DIR	Makefile	/^OBJECTS_DIR   = .\/$/;"	m
+OverlappedVoronoiInfo	DeformableMesh3d.h	/^	struct OverlappedVoronoiInfo {$/;"	s	class:meshtalent::DeformableMesh3d
 P3d	DeformableMesh3d.cpp	/^	typedef DeformableMesh3d::P3d P3d;$/;"	t	class:meshtalent::CmpDist	file:
 P3d	DeformableMesh3d.h	/^	typedef math::Point3d<double> P3d;$/;"	t	class:meshtalent::DeformableMesh3d
 P3d	DeformationGraph.cpp	/^	typedef DeformationGraph::P3d P3d;$/;"	t	class:meshtalent::WithinCircle	file:
@@ -238,6 +240,7 @@ fovy	QGLViewerWidget.h	/^	float fovy() const { return 45.0f; }$/;"	f	class:QGLVi
 from	DeformationGraph.h	/^		enum From from;$/;"	m	struct:meshtalent::DeformationGraph::PointWithID	typeref:enum:meshtalent::DeformationGraph::PointWithID::From
 g	DeformationGraph.h	/^		P3d g; \/\/ the space coordinate of this graph node.$/;"	m	struct:meshtalent::DeformationGraph::GraphNode
 genGraphAction	MainWindow.h	/^	QAction* genGraphAction;$/;"	m	class:MainWindow
+genOverlappedVoronoi	DeformableMesh3d.cpp	/^void DeformableMesh3d::genOverlappedVoronoi()$/;"	f	class:meshtalent::DeformableMesh3d
 genVoronoi	DeformableMesh3d.cpp	/^void DeformableMesh3d::genVoronoi()$/;"	f	class:meshtalent::DeformableMesh3d
 gen_graph_query	MeshViewerWidget.cpp	/^void MeshViewerWidget::gen_graph_query()$/;"	f	class:MeshViewerWidget
 getColptr	math/SparseMatrix.h	/^	const std::vector<STYPE>& getColptr() const {$/;"	f	class:meshtalent::SparseMatrix
@@ -248,6 +251,7 @@ getFromx	DeformationGraph.cpp	/^void DeformationGraph::getFromx(const std::vecto
 getHandleIDs	DeformableMesh3d.h	/^	const std::vector<InterMesh::VertexHandle>& getHandleIDs() const {$/;"	f	class:meshtalent::DeformableMesh3d
 getHandleIDs	DeformableMesh3d.h	/^	std::vector<InterMesh::VertexHandle>& getHandleIDs() {$/;"	f	class:meshtalent::DeformableMesh3d
 getHandles	MeshViewerWidget.h	/^	void getHandles() {$/;"	f	class:MeshViewerWidget
+getNearNodesNum	DeformableMesh3d.h	/^		static int getNearNodesNum() { return nearNodesNum; }$/;"	f	struct:meshtalent::DeformableMesh3d::OverlappedVoronoiInfo
 getRowind	math/SparseMatrix.h	/^	const std::vector<STYPE>& getRowind() const {$/;"	f	class:meshtalent::SparseMatrix
 getRowind	math/SparseMatrix.h	/^	std::vector<STYPE>& getRowind() {$/;"	f	class:meshtalent::SparseMatrix
 getSVSet	DeformableMesh3d.h	/^	const std::set<InterMesh::VertexHandle>& getSVSet() const {$/;"	f	class:meshtalent::DeformableMesh3d
@@ -271,6 +275,7 @@ helpMenu	MainWindow.h	/^	QMenu* helpMenu;$/;"	m	class:MainWindow
 id	DeformationGraph.h	/^		int id;$/;"	m	struct:meshtalent::DeformationGraph::PointWithID
 increaseKey	utility/BinaryHeap.h	/^void BinaryHeap<T>::increaseKey(int pos, const T& t)$/;"	f	class:meshtalent::utility::BinaryHeap
 index	DeformationGraph.h	/^		int index; \/\/ the index in "edges".$/;"	m	struct:meshtalent::DeformationGraph::GraphNode
+indexNow	DeformableMesh3d.h	/^		int indexNow; \/\/ have computed out how many nearest nodes.$/;"	m	struct:meshtalent::DeformableMesh3d::OverlappedVoronoiInfo
 init	QGLViewerWidget.cpp	/^void QGLViewerWidget::init(void)$/;"	f	class:QGLViewerWidget
 initializeGL	QGLViewerWidget.cpp	/^void QGLViewerWidget::initializeGL()$/;"	f	class:QGLViewerWidget
 insert	utility/BinaryHeap.h	/^void BinaryHeap<T>::insert(const T& t)$/;"	f	class:meshtalent::utility::BinaryHeap
@@ -334,6 +339,8 @@ mouse_mode	QGLViewerWidget.h	/^	int mouse_mode() const { return mouse_mode_; }$/
 mouse_mode_	QGLViewerWidget.h	/^	int mouse_mode_;$/;"	m	class:QGLViewerWidget
 moveFromEdgeToVertex	DeformationGraph.cpp	/^void DeformationGraph::moveFromEdgeToVertex(GraphNode* pnode, const PointWithID& pwid)$/;"	f	class:meshtalent::DeformationGraph
 moveFromFaceToVertex	DeformationGraph.cpp	/^void DeformationGraph::moveFromFaceToVertex(GraphNode* pnode, const PointWithID& pwid)$/;"	f	class:meshtalent::DeformationGraph
+nearNodesNum	DeformableMesh3d.cpp	/^int DeformableMesh3d::OverlappedVoronoiInfo::nearNodesNum = 4;$/;"	m	class:meshtalent::DeformableMesh3d::OverlappedVoronoiInfo	file:
+nearNodesNum	DeformableMesh3d.h	/^		static int nearNodesNum; \/\/ find nearNodesNum nearest nodes for every vertex, no more than MAXSIZE.$/;"	m	struct:meshtalent::DeformableMesh3d::OverlappedVoronoiInfo
 nearnodesArr	DeformableMesh3d.h	/^	OpenMesh::VPropHandleT<std::vector<IndexWeightPair> > nearnodesArr;$/;"	m	class:meshtalent::DeformableMesh3d
 nodeNumLabel	genGraphDialog.h	/^	QLabel* nodeNumLabel;$/;"	m	class:GenGraphDialog
 nodeNumLineEdit	genGraphDialog.h	/^	QLineEdit* nodeNumLineEdit;$/;"	m	class:GenGraphDialog
@@ -393,6 +400,7 @@ operator []	math/point3d.h	/^	T& operator[] (int i) {$/;"	f	class:meshtalent::ma
 operator []	math/point3d.h	/^	const T& operator[] (int i) const {$/;"	f	class:meshtalent::math::Point3d
 operator []	math/vector3d.h	/^	T& operator[] (int i) {$/;"	f	class:meshtalent::math::Vector3d
 operator []	math/vector3d.h	/^	const T& operator[] (int i) const {$/;"	f	class:meshtalent::math::Vector3d
+overlapped_voroInfo	DeformableMesh3d.h	/^	OpenMesh::VPropHandleT<OverlappedVoronoiInfo> overlapped_voroInfo;$/;"	m	class:meshtalent::DeformableMesh3d
 p	DeformationGraph.h	/^		P3d p;$/;"	m	struct:meshtalent::DeformationGraph::PointWithID
 p	math/point3d.h	/^	T p[3];$/;"	m	class:meshtalent::math::Point3d
 pGraph	DeformableMesh3d.h	/^	DeformationGraph* pGraph;$/;"	m	class:meshtalent::DeformableMesh3d
@@ -449,7 +457,7 @@ rowind	math/SparseMatrix.h	/^		std::vector<sizetype>& rowind;$/;"	m	class:meshta
 rowind	math/SparseMatrix.h	/^	std::vector<STYPE> rowind;$/;"	m	class:meshtalent::SparseMatrix
 rsquare	DeformationGraph.cpp	/^	double rsquare;$/;"	m	class:meshtalent::WithinCircle	file:
 s:cpo_save	Session.vim	/^let s:cpo_save=&cpo$/;"	v
-s:l	Session.vim	/^let s:l = 194 - ((14 * winheight(0) + 10) \/ 21)$/;"	v
+s:l	Session.vim	/^let s:l = 251 - ((16 * winheight(0) + 16) \/ 33)$/;"	v
 s:so_save	Session.vim	/^let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0$/;"	v
 s:sx	Session.vim	/^let s:sx = expand("<sfile>:p:r")."x.vim"$/;"	v
 s:wipebuf	Session.vim	/^  let s:wipebuf = bufnr('%')$/;"	v
@@ -475,6 +483,7 @@ setDefaultMaterial	QGLViewerWidget.cpp	/^void QGLViewerWidget::setDefaultMateria
 setDrawMode	QGLViewerWidget.h	/^	void setDrawMode(int dm) { draw_mode_ = dm; updateGL(); }$/;"	f	class:QGLViewerWidget
 setGraph	DeformableMesh3d.h	/^	void setGraph(DeformationGraph* _pGraph) {$/;"	f	class:meshtalent::DeformableMesh3d
 setMouseMode	QGLViewerWidget.h	/^	void setMouseMode(int mm) { mouse_mode_ = mm; }$/;"	f	class:QGLViewerWidget
+setNearNodesNum	DeformableMesh3d.h	/^		static void setNearNodesNum(int k) { nearNodesNum = k; }$/;"	f	struct:meshtalent::DeformableMesh3d::OverlappedVoronoiInfo
 set_scene_pos	QGLViewerWidget.cpp	/^void QGLViewerWidget::set_scene_pos(const Vec3d& _cog, float _radius)$/;"	f	class:QGLViewerWidget
 showGraphAction	MainWindow.h	/^	QAction* showGraphAction;$/;"	m	class:MainWindow
 siftdown	utility/BinaryHeap.h	/^void BinaryHeap<T>::siftdown(int pos)$/;"	f	class:meshtalent::utility::BinaryHeap
@@ -526,6 +535,7 @@ viewMenu	MainWindow.h	/^	QMenu* viewMenu;$/;"	m	class:MainWindow
 viewToolBar	MainWindow.h	/^	QToolBar* viewToolBar;$/;"	m	class:MainWindow
 view_all	QGLViewerWidget.cpp	/^void QGLViewerWidget::view_all()$/;"	f	class:QGLViewerWidget
 viewer	MainWindow.h	/^	MeshViewerWidget* viewer;$/;"	m	class:MainWindow
+vis	DeformableMesh3d.h	/^		VoronoiInfo vis[MAXSIZE]; \/\/ always ordered by it's dis, and handleRoot are unique.$/;"	m	struct:meshtalent::DeformableMesh3d::OverlappedVoronoiInfo
 voroInfo	DeformableMesh3d.h	/^	OpenMesh::VPropHandleT<VoronoiInfo> voroInfo;$/;"	m	class:meshtalent::DeformableMesh3d
 voronoiDiagramAction	MainWindow.h	/^	QAction* voronoiDiagramAction;$/;"	m	class:MainWindow
 voronoiDiagramShow	MainWindow.cpp	/^void MainWindow::voronoiDiagramShow()$/;"	f	class:MainWindow
