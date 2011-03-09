@@ -123,6 +123,7 @@ void MainWindow::createActions()
 	updateMeshAction->setIcon(QIcon("../image/updatemesh.png"));
 	updateMeshAction->setStatusTip(tr("Update the normals and the center of the mesh"));
 	connect(updateMeshAction, SIGNAL(triggered()), viewer, SLOT(update_mesh()));
+
 }
 
 void MainWindow::createMenus()

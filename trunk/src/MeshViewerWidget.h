@@ -58,6 +58,7 @@ public slots:
 		}
 	}
 	void gen_graph_query();
+
 public:
 	void getHandles() {
 		if (!mesh_.n_vertices()) { return; }
@@ -89,7 +90,7 @@ private:
 	void processMousePickPress(QMouseEvent* _event);
 	void processMousePickMove(QMouseEvent* _event);
 	void processMousePickRelease(QMouseEvent* _event);
-	void processPickHits(GLint hits, GLuint* buffer, bool controled);
+	void processPickHits(GLint hits, GLuint* buffer, bool controled, bool singlePick);
 private:
 	// process mouse deform.
 	void processMouseDeformPress(QMouseEvent* _event);

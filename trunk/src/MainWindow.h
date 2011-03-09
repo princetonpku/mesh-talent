@@ -59,6 +59,7 @@ private:
 	QAction* mousePickAction;
 	QAction* mouseDeformAction;
 
+
 	// Help Actions.
 
 	// Menus.

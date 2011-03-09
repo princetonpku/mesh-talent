@@ -307,6 +307,28 @@ void MeshViewerWidget::draw_graph() const
 void MeshViewerWidget::mousePressEvent(QMouseEvent* _event)
 {
 	if (mesh_.n_vertices() == 0) return;
+
+	const int BUFFERSIZE = 2048;
+	char buffer[BUFFERSIZE];
+	char *pBuf = buffer;
+	char *pBufEnd = buffer + BUFFERSIZE;
+	buffer[0] = '\0';
+
+	if (_event->buttons() == RightButton) {
+		for (std::set<InterMesh::VertexHandle>::iterator it = pdmesh_->getSVSet().begin(); 
+			it != pdmesh_->getSVSet().end(); ++it) {
+				sprintf(pBuf, "%d %lf %lf %lf\n%", it->idx(), mesh_.point(*it)[0],
+					mesh_.point(*it)[1], mesh_.point(*it)[2]);
+				int len = strlen(pBuf);
+				pBuf += len;
+				if (pBuf + len >= pBufEnd) {
+					break;
+				}
+		}
+		QMessageBox::information(this, "Selected Vertices", buffer);
+	}
+	
+
 	// rotate, translate, scale, pick, or deform.
 	if (_event->buttons() == LeftButton) {
 		int mm = mouse_mode();
@@ -365,7 +387,7 @@ void MeshViewerWidget::mouseReleaseEvent(QMouseEvent* _event)
 	} // end of else
 }
 
-void MeshViewerWidget::processPickHits(GLint hits, GLuint* buffer, bool controled)
+void MeshViewerWidget::processPickHits(GLint hits, GLuint* buffer, bool controled, bool singlePick)
 {
 	int n_vertices = mesh_.n_vertices();
 	if (!n_vertices) return; // no mesh.
@@ -373,6 +395,12 @@ void MeshViewerWidget::processPickHits(GLint hits, GLuint* buffer, bool controle
 	if (!controled) {
 		pdmesh_->getSVSet().clear();
 	}
+
+	GLdouble winx, winy, winz;
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	GLdouble minZ = 10e8;
+	int minZindex = n_vertices;
 
 	GLuint* ptr = buffer;
 	for (int i = 0; i < hits; ++i) {
@@ -382,11 +410,26 @@ void MeshViewerWidget::processPickHits(GLint hits, GLuint* buffer, bool controle
 		int index = *ptr;
 		assert(index <= n_vertices);
 		if (index < n_vertices) {
-			pdmesh_->getSVSet().insert(InterMesh::VertexHandle(*ptr));
+			if (singlePick) {
+				InterMesh::Point& p = mesh_.point(InterMesh::VertexHandle(index));
+				gluProject(p[0], p[1], p[2], modelview_matrix(), projection_matrix(), 
+					viewport, &winx, &winy, &winz);
+				if (winz < minZ) {
+					minZ = winz;
+					minZindex = index;
+				}	
+			} else {
+				pdmesh_->getSVSet().insert(InterMesh::VertexHandle(index));
+			}
 		}
 		ptr++;
 	}
+	if (singlePick && minZindex != n_vertices) {
+		pdmesh_->getSVSet().insert(InterMesh::VertexHandle(minZindex));
+	}
+	
 }
+
 
 void MeshViewerWidget::drawSelectBox(const Vec3d& center, double radius)
 {
@@ -489,6 +532,8 @@ void MeshViewerWidget::processMousePickRelease(QMouseEvent* _event)
 
 	GLdouble x1, y1, x2, y2, detX, detY, cenX, cenY;
 
+	bool singlePick = false;
+
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glSelectBuffer(mesh_.n_vertices(), &selectBuf[0]);
 	glRenderMode(GL_SELECT);
@@ -501,6 +546,7 @@ void MeshViewerWidget::processMousePickRelease(QMouseEvent* _event)
 	glLoadIdentity();
 
 	if (_event->x() == pick_press_point_.x() && _event->y() == pick_press_point_.y()) { // point select.
+		singlePick = true;
 		gluPickMatrix((GLdouble)(_event->x()), (GLdouble)(viewport[3]-_event->y()), 5.0, 5.0, viewport);
 	} else { // rect select.
 		// compute the pick rect.
@@ -525,7 +571,7 @@ void MeshViewerWidget::processMousePickRelease(QMouseEvent* _event)
 
 	hits = glRenderMode(GL_RENDER);
 	
-	processPickHits(hits, &selectBuf[0], _event->modifiers() == ControlModifier);
+	processPickHits(hits, &selectBuf[0], _event->modifiers() == ControlModifier, singlePick);
 	updateGL();
 }
 
