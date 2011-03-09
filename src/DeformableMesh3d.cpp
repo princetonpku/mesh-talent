@@ -211,6 +211,7 @@ void DeformableMesh3d::InitDatas(DeformationGraph* _pGraph)
 {
 	setGraph(_pGraph);
 
+	
 	//genVoronoi();
 	genOverlappedVoronoi();
 
@@ -249,9 +250,11 @@ void DeformableMesh3d::InitDatas(DeformationGraph* _pGraph)
 			nearnodesnow[i].second /= dsum;
 		}
 	}
+	
+	
 
 
-/*
+	/*
 	// copy all the node's coordinate into "nodecordcoll".
 	int rnumplusone = pGraph->relatenum + 1;
 	int nodenum = pGraph->nodenum;
@@ -299,7 +302,9 @@ void DeformableMesh3d::InitDatas(DeformationGraph* _pGraph)
 			nearnodesnow[i].second /= dsum;
 		}
 	} // end of for 
-*/
+	*/
+	
+
 }
 
 void DeformableMesh3d::gethandles()
