@@ -371,20 +371,22 @@ void MeshViewerWidget::mouseMoveEvent(QMouseEvent* _event)
 void MeshViewerWidget::mouseReleaseEvent(QMouseEvent* _event)
 {
 	if (mesh_.n_vertices() == 0) return;
-	// rotate, translate, scale, pick, or deform.
-	int mm = mouse_mode();
-	if (mm < N_MOUSE_MODES) { // rotate, translate, scale.
-		QGLViewerWidget::mouseReleaseEvent(_event);
-	} else {                  // pick, deform.
-		switch (mm) {
-		case MOUSE_PICK:
-			processMousePickRelease(_event);
-			break;
-		case MOUSE_DEFORM:
-			processMouseDeformRelease(_event);
-			break;
-		}
-	} // end of else
+	if (_event->button() == LeftButton) {
+		// rotate, translate, scale, pick, or deform.
+		int mm = mouse_mode();
+		if (mm < N_MOUSE_MODES) { // rotate, translate, scale.
+			QGLViewerWidget::mouseReleaseEvent(_event);
+		} else {                  // pick, deform.
+			switch (mm) {
+			case MOUSE_PICK:
+				processMousePickRelease(_event);
+				break;
+			case MOUSE_DEFORM:
+				processMouseDeformRelease(_event);
+				break;
+			}
+		} // end of else
+	}
 }
 
 void MeshViewerWidget::processPickHits(GLint hits, GLuint* buffer, bool controled, bool singlePick)
